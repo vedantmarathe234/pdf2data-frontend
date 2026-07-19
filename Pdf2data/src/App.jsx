@@ -2,40 +2,42 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import Dashboard from "./pages/Dashboard"; 
-
+import Dashboard from "./pages/Dashboard";
+import DashboardLayout from "./layouts/DashboardLayout";
 
 function ProtectedRoute({ children }) {
   const token = localStorage.getItem("token");
-  
+
   if (!token) {
     return <Navigate to="/login" replace />;
   }
+
   return children;
 }
 
 function App() {
   return (
     <BrowserRouter>
+
       <Routes>
 
-        <Route path="/" element={<Navigate to="/login" />} />
+        <Route path="/" element={<Navigate to="/login" replace />} />
 
-        <Route
-          path="/login"
-          element={<Login />}
-        />
+        <Route path="/login" element={<Login />} />
 
-        <Route
-          path="/register"
-          element={<Register />}
-        />
+        <Route path="/register" element={<Register />} />
 
         <Route
           path="/dashboard"
           element={
             <ProtectedRoute>
-              <Dashboard />
+
+              <DashboardLayout>
+
+                <Dashboard />
+
+              </DashboardLayout>
+
             </ProtectedRoute>
           }
         />
@@ -43,6 +45,7 @@ function App() {
         <Route path="*" element={<Navigate to="/login" replace />} />
 
       </Routes>
+
     </BrowserRouter>
   );
 }
