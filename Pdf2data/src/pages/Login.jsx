@@ -2,9 +2,11 @@ import { Link, useNavigate } from "react-router-dom";
 import { HiOutlineMail, HiOutlineLockClosed, HiEye, HiEyeOff } from "react-icons/hi";
 import { useState } from "react";
 import { loginUser } from "../services/auth";
+import { useAuth } from "../context/AuthContext";
 
 export default function Login() {
   const navigate = useNavigate();
+  const { refreshUser } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -17,12 +19,8 @@ export default function Login() {
     setError("");
 
     try {
-      const responseData = await loginUser(email, password);
-
-      localStorage.setItem("token", responseData.token);
-      localStorage.setItem("username", responseData.username);
-      localStorage.setItem("role", responseData.role);
-
+      await loginUser(email, password);
+      refreshUser();
       navigate("/dashboard");
     } catch (err) {
       setError(err.message);
@@ -35,7 +33,7 @@ export default function Login() {
     <div className="min-h-screen bg-[#eef1ff] flex items-center justify-center p-4">
       <div className="w-full max-w-6xl lg:h-[720px] bg-white rounded-[30px] shadow-2xl overflow-hidden grid lg:grid-cols-2">
         
-    
+
         <div className="relative p-10 flex flex-col justify-between h-full min-h-[300px] lg:min-h-full">
           <div
             className="absolute inset-0 m-4 rounded-[20px]"

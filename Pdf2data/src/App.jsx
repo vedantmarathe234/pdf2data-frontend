@@ -3,7 +3,13 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
+import History from "./pages/History";
+import Extractions from "./pages/Extractions";
+import Settings from "./pages/Settings";
+import ChatSession from "./pages/ChatSession";
 import DashboardLayout from "./layouts/DashboardLayout";
+import { AuthProvider } from "./context/AuthContext";
+import { ToastProvider } from "./context/ToastContext";
 
 function ProtectedRoute({ children }) {
   const token = localStorage.getItem("token");
@@ -15,37 +21,35 @@ function ProtectedRoute({ children }) {
   return children;
 }
 
+function Protected({ page }) {
+  return (
+    <ProtectedRoute>
+      <DashboardLayout>{page}</DashboardLayout>
+    </ProtectedRoute>
+  );
+}
+
 function App() {
   return (
     <BrowserRouter>
+      <ToastProvider>
+        <AuthProvider>
+          <Routes>
+            <Route path="/" element={<Navigate to="/login" replace />} />
 
-      <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
 
-        <Route path="/" element={<Navigate to="/login" replace />} />
+            <Route path="/dashboard" element={<Protected page={<Dashboard />} />} />
+            <Route path="/extractions" element={<Protected page={<Extractions />} />} />
+            <Route path="/history" element={<Protected page={<History />} />} />
+            <Route path="/settings" element={<Protected page={<Settings />} />} />
+            <Route path="/chat/:sessionId" element={<Protected page={<ChatSession />} />} />
 
-        <Route path="/login" element={<Login />} />
-
-        <Route path="/register" element={<Register />} />
-
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-
-              <DashboardLayout>
-
-                <Dashboard />
-
-              </DashboardLayout>
-
-            </ProtectedRoute>
-          }
-        />
-
-        <Route path="*" element={<Navigate to="/login" replace />} />
-
-      </Routes>
-
+            <Route path="*" element={<Navigate to="/login" replace />} />
+          </Routes>
+        </AuthProvider>
+      </ToastProvider>
     </BrowserRouter>
   );
 }

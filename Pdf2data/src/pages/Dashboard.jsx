@@ -1,26 +1,69 @@
 import { useState, useRef, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   HiOutlineSparkles,
   HiOutlinePlus,
   HiOutlineChevronLeft,
   HiOutlineChevronRight,
   HiOutlineArrowsExpand,
-  HiOutlineDocumentDuplicate,
   HiOutlineDocumentText,
-  HiOutlineCalendar,
-  HiOutlineUser,
   HiCheckCircle,
+  HiOutlineChatAlt2,
+  HiOutlineDownload,
+  HiOutlineExclamation,
 } from "react-icons/hi";
 import { BsSend } from "react-icons/bs";
+import { uploadAndExtract, exportDocument } from "../services/documentService";
+import { getSessions } from "../services/chatService";
+import { useToast } from "../context/ToastContext";
+
+const PROMPT_EXAMPLES = [
+  "Extract Data",
+  "Extract tables",
+  "Get all dates",
+  "Extract names & emails",
+  "Convert to JSON",
+];
+
+function fileTypeLabel(fileName = "") {
+  return fileName.split(".").pop().slice(0, 3).toUpperCase();
+}
 
 export default function Dashboard() {
+  const navigate = useNavigate();
+  const toast = useToast();
+
   const [file, setFile] = useState(null);
   const [prompt, setPrompt] = useState("");
   const [loading, setLoading] = useState(false);
-  const [extractedData, setExtractedData] = useState(null);
+  const [exporting, setExporting] = useState("");
+  const [result, setResult] = useState(null); // ProcessingResponse
   const [activeTab, setActiveTab] = useState("Form View");
-  const [recentDocs, setRecentDocs] = useState([]);
   const [previewUrl, setPreviewUrl] = useState(null);
+
+  const [recentSessions, setRecentSessions] = useState([]);
+  const [sessionsLoading, setSessionsLoading] = useState(true);
+
+  const fileInputRef = useRef(null);
+
+  const loadRecentSessions = async () => {
+    setSessionsLoading(true);
+    try {
+      const sessions = await getSessions();
+      const sorted = [...sessions].sort(
+        (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
+      );
+      setRecentSessions(sorted.slice(0, 6));
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setSessionsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    loadRecentSessions();
+  }, []);
 
   useEffect(() => {
     if (!file) {
@@ -32,81 +75,71 @@ export default function Dashboard() {
     return () => URL.revokeObjectURL(objectUrl);
   }, [file]);
 
-  const fileInputRef = useRef(null);
-
-  const handleFileClick = () => {
-    fileInputRef.current.click();
-  };
+  const handleFileClick = () => fileInputRef.current.click();
 
   const handleFileChange = (e) => {
     if (e.target.files && e.target.files[0]) {
       setFile(e.target.files[0]);
+      setResult(null);
     }
   };
 
   const handlePromptSuggestion = (suggestion) => {
-    setPrompt((prevPrompt) => {
-      if (prevPrompt.includes(suggestion)) {
-        return prevPrompt
+    setPrompt((prev) => {
+      if (prev.includes(suggestion)) {
+        return prev
           .replace(suggestion, "")
           .replace(/,\s*,/g, ",")
           .replace(/^,\s*|\s*,\s*$/g, "")
           .trim();
-      } else {
-        return prevPrompt.length > 0
-          ? `${prevPrompt}, ${suggestion}`
-          : suggestion;
       }
+      return prev.length > 0 ? `${prev}, ${suggestion}` : suggestion;
     });
   };
 
   const handleExtract = async () => {
     if (!file) {
-      alert("Please select a document first.");
+      toast.error("Please select a document first.");
       return;
     }
 
     setLoading(true);
-    const token = localStorage.getItem("token");
-    const formData = new FormData();
-    formData.append("file", file);
-    formData.append("prompt", prompt || "Extract all structured data");
-
     try {
-      const response = await fetch(
-        "http://localhost:8080/api/processing/upload",
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-          body: formData,
-        },
+      const response = await uploadAndExtract(
+        file,
+        prompt || "Extract all structured data"
       );
-
-      if (!response.ok) throw new Error("Extraction failed on the server.");
-
-      const data = await response.json();
-      setExtractedData(data);
-
-      const fileExt = file.name.split(".").pop().toUpperCase();
-      setRecentDocs((prev) => [
-        {
-          name: file.name,
-          time: "Just now",
-          pages: "1 page",
-          type: fileExt.substring(0, 3),
-          color: "bg-indigo-500",
-        },
-        ...prev,
-      ]);
+      setResult(response);
+      setActiveTab("Form View");
+      toast.success(`Extracted ${Object.keys(response.data || {}).length} fields from ${response.fileName}.`);
+      loadRecentSessions();
     } catch (error) {
       console.error(error);
-      alert("Failed to extract document.");
+      const msg =
+        error.response?.data ||
+        error.message ||
+        "Failed to extract document.";
+      toast.error(typeof msg === "string" ? msg : "Failed to extract document.");
     } finally {
       setLoading(false);
     }
   };
+
+  const handleExport = async (format) => {
+    if (!result) return;
+    setExporting(format);
+    try {
+      await exportDocument(result.documentId, format);
+      toast.success(`Exported as ${format.toUpperCase()}.`);
+    } catch (err) {
+      console.error(err);
+      toast.error("Export failed. Please try again.");
+    } finally {
+      setExporting("");
+    }
+  };
+
+  const confidencePct = result ? Math.round((result.overallConfidence || 0) * 100) : 0;
 
   return (
     <div className="space-y-6 pt-6">
@@ -166,14 +199,8 @@ export default function Dashboard() {
               <p className="text-sm font-medium text-gray-700 mb-3">
                 Try these examples:
               </p>
-              <div className="flex flex-wrap  gap-2.5">
-                {[
-                  "Extract Data",
-                  "Extract tables",
-                  "Get all dates",
-                  "Extract names & emails",
-                  "Convert to JSON",
-                ].map((item) => {
+              <div className="flex flex-wrap gap-2.5">
+                {PROMPT_EXAMPLES.map((item) => {
                   const isSelected = prompt.includes(item);
                   return (
                     <button
@@ -214,6 +241,7 @@ export default function Dashboard() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 pb-10">
+        {/* Document preview */}
         <div className="lg:col-span-5 bg-white dark:bg-slate-900 rounded-[24px] border border-gray-300 dark:border-slate-800 shadow-sm p-6 flex flex-col h-[700px]">
           <div className="flex items-center justify-between flex-shrink-0">
             <div>
@@ -229,7 +257,7 @@ export default function Dashboard() {
                 <button className="hover:text-gray-900 transition">
                   <HiOutlineChevronLeft size={18} />
                 </button>
-                <span>1 / 2</span>
+                <span>1 / 1</span>
                 <button className="hover:text-gray-900 transition">
                   <HiOutlineChevronRight size={18} />
                 </button>
@@ -240,11 +268,11 @@ export default function Dashboard() {
             </div>
           </div>
 
-          <div className="mt-6 border border-gray-400 dark:border-slate-700 rounded-[24px] p-8 flex flex-col md:flex-row gap-8 bg-gray-50/50 dark:bg-slate-950/50 flex-1 relative ">
+          <div className="mt-6 border border-gray-400 dark:border-slate-700 rounded-[24px] p-8 flex flex-col md:flex-row gap-8 bg-gray-50/50 dark:bg-slate-950/50 flex-1 relative">
             {previewUrl ? (
               <iframe
                 src={previewUrl}
-                className="w-full h-full absolute  inset-0 border-none"
+                className="w-full h-full absolute inset-0 border-none rounded-[24px]"
                 title="Document Preview"
               />
             ) : (
@@ -257,20 +285,41 @@ export default function Dashboard() {
           </div>
         </div>
 
+        {/* Extraction result */}
         <div className="lg:col-span-4 bg-white dark:bg-slate-900 rounded-[24px] border border-gray-300 dark:border-slate-800 shadow-sm p-6 flex flex-col h-[700px] overflow-hidden">
           <div className="flex items-center justify-between">
             <h2 className="text-lg font-bold text-gray-900 dark:text-white">
               Extraction Result
             </h2>
 
-            {extractedData && (
-              <span className="px-3 py-1 rounded-full bg-green-100 text-green-700 text-xs font-semibold">
-                Success
+            {result && (
+              <span
+                className={`px-3 py-1 rounded-full text-xs font-semibold ${
+                  confidencePct >= 70
+                    ? "bg-green-100 text-green-700"
+                    : "bg-amber-100 text-amber-700"
+                }`}
+              >
+                {confidencePct}% confidence
               </span>
             )}
           </div>
 
-          <div className="mt-6 flex border-b border-gray-200 dark:border-slate-700">
+          {result && (
+            <div className="mt-3 flex items-center justify-between text-xs">
+              <span className="px-2.5 py-1 rounded-full bg-indigo-50 dark:bg-indigo-500/10 text-[#6139ff] font-semibold">
+                {result.documentType}
+              </span>
+              <button
+                onClick={() => navigate(`/chat/${result.chatSessionId}`)}
+                className="flex items-center gap-1.5 text-[#6139ff] font-semibold hover:underline"
+              >
+                <HiOutlineChatAlt2 size={14} /> Continue in Chat
+              </button>
+            </div>
+          )}
+
+          <div className="mt-4 flex border-b border-gray-200 dark:border-slate-700">
             {["Form View", "JSON View"].map((tab) => (
               <button
                 key={tab}
@@ -286,103 +335,152 @@ export default function Dashboard() {
             ))}
           </div>
 
-          <div className="mt-6 border border-gray-400 items-center justify-center dark:border-slate-700 rounded-[24px] flex flex-col md:flex-row gap-8 bg-gray-50/50 dark:bg-slate-950/50 overflow-hidden flex-1 relative">
-            {!extractedData ? (
-              <div className="text-sm text-gray-500 dark:text-slate-400 text-center">
-                <p className="text-sm">
-                  {" "}
-                  Results will appear here after extraction.
-                </p>
+          <div className="mt-4 border border-gray-400 dark:border-slate-700 rounded-[24px] flex flex-col bg-gray-50/50 dark:bg-slate-950/50 overflow-hidden flex-1 relative">
+            {!result ? (
+              <div className="flex items-center justify-center h-full text-sm text-gray-500 dark:text-slate-400 text-center px-6">
+                Results will appear here after extraction.
               </div>
             ) : activeTab === "Form View" ? (
               <div className="h-full overflow-y-auto custom-scrollbar p-6 space-y-3">
-                {Object.entries(extractedData).map(([key, value]) => (
-                  <div className="flex-1 min-w-0">
-                    <p className="text-xs text-gray-500 capitalize">
-                      {key.replace(/_/g, " ")}
-                    </p>
+                {Object.entries(result.data || {}).map(([key, value]) => {
+                  const conf = result.fieldConfidence?.[key];
+                  return (
+                    <div key={key} className="min-w-0">
+                      <div className="flex items-center justify-between">
+                        <p className="text-xs text-gray-500 capitalize">
+                          {key.replace(/_/g, " ")}
+                        </p>
+                        {typeof conf === "number" && (
+                          <span
+                            className={`text-[10px] font-semibold ${
+                              conf >= 0.7 ? "text-green-600" : "text-amber-600"
+                            }`}
+                          >
+                            {Math.round(conf * 100)}%
+                          </span>
+                        )}
+                      </div>
 
-                    {typeof value === "object" ? (
-                      <pre className="mt-2 p-3 rounded-lg bg-gray-100 dark:bg-slate-800 text-xs overflow-auto max-h-40 custom-scrollbar whitespace-pre-wrap break-words">
-                        {JSON.stringify(value, null, 2)}
-                      </pre>
-                    ) : (
-                      <p className="font-semibold dark:text-white mt-1 break-words">
-                        {String(value)}
-                      </p>
-                    )}
+                      {value && typeof value === "object" ? (
+                        <pre className="mt-2 p-3 rounded-lg bg-gray-100 dark:bg-slate-800 text-xs overflow-auto max-h-40 custom-scrollbar whitespace-pre-wrap break-words">
+                          {JSON.stringify(value, null, 2)}
+                        </pre>
+                      ) : (
+                        <p className="font-semibold dark:text-white mt-1 break-words">
+                          {value === null || value === undefined || value === ""
+                            ? "—"
+                            : String(value)}
+                        </p>
+                      )}
+                    </div>
+                  );
+                })}
+
+                {result.validationIssues?.length > 0 && (
+                  <div className="pt-3 mt-3 border-t border-gray-200 dark:border-slate-700 space-y-2">
+                    <p className="text-xs font-semibold text-gray-500 flex items-center gap-1.5">
+                      <HiOutlineExclamation size={14} /> Validation notes
+                    </p>
+                    {result.validationIssues.map((issue, i) => (
+                      <div
+                        key={i}
+                        className={`text-xs rounded-lg px-3 py-2 ${
+                          issue.severity === "ERROR"
+                            ? "bg-red-50 text-red-600"
+                            : issue.severity === "WARNING"
+                            ? "bg-amber-50 text-amber-700"
+                            : "bg-gray-100 text-gray-600"
+                        }`}
+                      >
+                        <span className="font-semibold">{issue.field}:</span>{" "}
+                        {issue.issue}
+                      </div>
+                    ))}
                   </div>
-                ))}
+                )}
+
+                {result.reasoning?.summary && (
+                  <div className="pt-3 mt-3 border-t border-gray-200 dark:border-slate-700">
+                    <p className="text-xs font-semibold text-gray-500 mb-1.5">
+                      AI Reasoning
+                    </p>
+                    <p className="text-xs text-gray-600 dark:text-slate-400">
+                      {result.reasoning.summary}
+                    </p>
+                  </div>
+                )}
               </div>
             ) : (
-              <pre
-                className="h-full
-            overflow-auto
-            custom-scrollbar
-            rounded-xl
-            bg-gray-100
-            dark:bg-slate-950
-            p-4
-            text-xs
-            text-gray-800
-            dark:text-slate-200
-            whitespace-pre-wrap
-            break-words"
-              >
-                {JSON.stringify(extractedData, null, 2)}
+              <pre className="h-full overflow-auto custom-scrollbar rounded-xl bg-gray-100 dark:bg-slate-950 p-4 text-xs text-gray-800 dark:text-slate-200 whitespace-pre-wrap break-words">
+                {JSON.stringify(result.data, null, 2)}
               </pre>
             )}
           </div>
+
+          {result && (
+            <div className="mt-4 flex gap-2 flex-shrink-0">
+              {["json", "csv", "excel", "sql"].map((fmt) => (
+                <button
+                  key={fmt}
+                  onClick={() => handleExport(fmt)}
+                  disabled={exporting === fmt}
+                  className="flex-1 flex items-center justify-center gap-1.5 py-2 rounded-xl border border-gray-200 dark:border-slate-700 text-xs font-semibold text-gray-600 dark:text-slate-300 hover:border-[#6139ff] hover:text-[#6139ff] transition disabled:opacity-50"
+                >
+                  <HiOutlineDownload size={13} />
+                  {exporting === fmt ? "..." : fmt.toUpperCase()}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
+
+        {/* Recent documents (real sessions) */}
         <div className="lg:col-span-3 bg-white dark:bg-slate-900 rounded-[24px] border border-gray-300 dark:border-slate-800 shadow-sm p-6 flex flex-col h-[700px]">
           <div className="flex items-center justify-between mb-6 flex-shrink-0">
             <h2 className="text-lg font-bold text-gray-900 dark:text-white">
               Recent Documents
             </h2>
             <button
-              className="
-bg-white
-dark:bg-slate-800
-border
-border-gray-200
-dark:border-slate-700
-text-gray-700
-dark:text-slate-200
-"
+              onClick={() => navigate("/history")}
+              className="text-xs font-semibold text-[#6139ff] hover:underline"
             >
               View all
             </button>
           </div>
 
-          <div className="mt-6 border border-gray-400 items-center justify-center dark:border-slate-700 rounded-[24px] p-8 flex flex-col md:flex-row gap-8 bg-gray-50/50 dark:bg-slate-950/50 flex-1 relative">
-            {recentDocs.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-full text-gray-400 gap-2 mt-10">
+          <div className="border border-gray-400 dark:border-slate-700 rounded-[24px] p-3 flex flex-col gap-1 bg-gray-50/50 dark:bg-slate-950/50 flex-1 overflow-y-auto custom-scrollbar">
+            {sessionsLoading ? (
+              <div className="flex items-center justify-center h-full text-gray-400 text-sm">
+                Loading...
+              </div>
+            ) : recentSessions.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-full text-gray-400 gap-2">
                 <p className="text-sm">No recent documents found.</p>
               </div>
             ) : (
-              recentDocs.map((doc, idx) => (
-                <div
-                  key={idx}
-                  className="flex items-center justify-between p-3 rounded-xl hover:bg-white dark:hover:bg-[#1B253B] transition"
+              recentSessions.map((session) => (
+                <button
+                  key={session.id}
+                  onClick={() => navigate(`/chat/${session.id}`)}
+                  className="flex items-center justify-between p-3 rounded-xl hover:bg-white dark:hover:bg-[#1B253B] transition text-left"
                 >
-                  <div className="flex items-center gap-3">
-                    <div
-                      className={`w-10 h-10 rounded-lg flex items-center justify-center text-white text-xs font-bold ${doc.color}`}
-                    >
-                      {doc.type}
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-10 h-10 rounded-lg flex items-center justify-center text-white text-xs font-bold bg-indigo-500 shrink-0">
+                      {fileTypeLabel(session.fileName)}
                     </div>
-
-                    <div>
-                      <p className="font-medium dark:text-white text-sm truncate max-w-[120px]">
-                        {doc.name}
+                    <div className="min-w-0">
+                      <p className="font-medium dark:text-white text-sm truncate max-w-[130px]">
+                        {session.title || session.fileName}
                       </p>
-
-                      <p className="text-xs text-gray-500">{doc.time}</p>
+                      <p className="text-xs text-gray-500">
+                        {new Date(session.updatedAt).toLocaleDateString()}
+                      </p>
                     </div>
                   </div>
-
-                  <span className="text-xs text-gray-400">{doc.pages}</span>
-                </div>
+                  {session.pinned && (
+                    <span className="text-[#6139ff] text-xs">★</span>
+                  )}
+                </button>
               ))
             )}
           </div>
