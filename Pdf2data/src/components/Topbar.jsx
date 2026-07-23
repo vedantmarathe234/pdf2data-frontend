@@ -64,14 +64,12 @@ export default function Topbar({ dark, setDark }) {
                 dark ? "translate-x-[34px]" : "translate-x-0"
               }`}
             />
-
             <div className="relative z-10 flex-1 flex justify-center">
               <HiOutlineSun
                 size={18}
                 className={!dark ? "text-gray-900" : "text-gray-400"}
               />
             </div>
-
             <div className="relative z-10 flex-1 flex justify-center">
               <HiOutlineMoon
                 size={18}

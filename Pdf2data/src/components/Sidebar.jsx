@@ -6,7 +6,6 @@ import {
   HiOutlineCog,
   HiOutlineLogout,
 } from "react-icons/hi";
-
 import logo from "../assets/logo.png";
 import { useAuth } from "../context/AuthContext";
 
@@ -24,7 +23,6 @@ export default function Sidebar() {
 
   const isPathActive = (path) => {
     if (path === "/dashboard") {
-      // Chat workspace opened from Dashboard/History should keep Home lit
       return (
         location.pathname === "/dashboard" ||
         location.pathname.startsWith("/chat/")
