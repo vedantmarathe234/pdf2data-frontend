@@ -4,6 +4,7 @@ import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
 import DashboardLayout from "./layouts/DashboardLayout";
+import ExtractionPage from "./components/extractions/ExtractionPage";
 
 function ProtectedRoute({ children }) {
   const token = localStorage.getItem("token");
@@ -41,6 +42,20 @@ function App() {
             </ProtectedRoute>
           }
         />
+        <Route
+            path="/extractions"
+            element={
+              <ProtectedRoute>
+
+                <DashboardLayout>
+
+                  <ExtractionPage />
+
+                </DashboardLayout>
+
+              </ProtectedRoute>
+            }
+        />
 
         <Route path="*" element={<Navigate to="/login" replace />} />
 
@@ -49,5 +64,6 @@ function App() {
     </BrowserRouter>
   );
 }
+
 
 export default App;
