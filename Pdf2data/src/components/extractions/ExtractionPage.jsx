@@ -19,8 +19,10 @@ import {
     downloadExcel,
     downloadSql,
 } from "../../services/extractionService";
+import ExtractionModal from "./ExtractionModal";
 
 import "../../styles/extraction.css";
+
 
 export default function ExtractionPage() {
 
@@ -28,7 +30,7 @@ export default function ExtractionPage() {
     const [search, setSearch] = useState("");
     const [statusFilter, setStatusFilter] = useState("All");
     const [typeFilter, setTypeFilter] = useState("All");
-
+    const [selectedId, setSelectedId] = useState(null);
     useEffect(() => {
         loadData();
     }, []);
@@ -158,7 +160,11 @@ export default function ExtractionPage() {
 
                 {filtered.map((doc) => (
 
-                    <tr key={doc.documentId}>
+                    <tr
+                        key={doc.documentId}
+                        onClick={() => setSelectedId(doc.documentId)}
+                        style={{ cursor: "pointer" }}
+                    >
 
                         <td>
 
@@ -206,7 +212,7 @@ export default function ExtractionPage() {
 
                         </td>
 
-                        <td>
+                        <td onClick={(e) => e.stopPropagation()}>
 
                             <div className="dropdown">
 
@@ -278,7 +284,12 @@ export default function ExtractionPage() {
                 </tbody>
 
             </table>
-
+            {selectedId && (
+                <ExtractionModal
+                    id={selectedId}
+                    onClose={() => setSelectedId(null)}
+                />
+            )}
         </div>
 
     );

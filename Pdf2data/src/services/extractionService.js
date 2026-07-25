@@ -21,6 +21,19 @@ export const getExtractions = async () => {
 };
 
 // =======================
+// Get Single Extraction
+// =======================
+
+export const getExtraction = async (id) => {
+
+    const response = await axios.get(`${EXTRACTION_API}/${id}`, {
+        headers: getHeaders(),
+    });
+
+    return response.data;
+};
+
+// =======================
 // Export Functions
 // =======================
 

@@ -70,7 +70,7 @@ table{
 
     border-radius:16px;
 
-    overflow:hidden;
+    overflow:visible;
 
 }
 
@@ -199,15 +199,27 @@ td{
 }
 
 .dropdown-content {
+
     display: none;
+
     position: absolute;
+
+    top: 100%;
+
     right: 0;
-    min-width: 170px;
+
+    min-width: 180px;
+
     background: white;
+
     border: 1px solid #ddd;
-    border-radius: 8px;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-    z-index: 100;
+
+    border-radius: 10px;
+
+    box-shadow: 0 8px 20px rgba(0,0,0,.15);
+
+    z-index: 9999;
+
 }
 
 .dropdown-content button {
@@ -223,6 +235,6 @@ td{
     background: #f5f5f5;
 }
 
-.dropdown:hover .dropdown-content {
-    display: block;
+.dropdown:hover .dropdown-content{
+    display:block;
 }
