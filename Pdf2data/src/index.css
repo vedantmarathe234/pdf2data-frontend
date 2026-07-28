@@ -8,7 +8,6 @@
   }
 }
 
-/* Custom thin scrollbar used across dashboard panels */
 .custom-scrollbar::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -54,4 +53,16 @@
 }
 .animate-toastIn {
   animation: toastIn 0.2s ease-out;
+}
+@keyframes spin-clockwise {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-single-beam {
+  animation: spin-clockwise 3.5s linear infinite;
 }

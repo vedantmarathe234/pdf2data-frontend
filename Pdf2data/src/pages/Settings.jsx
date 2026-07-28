@@ -7,37 +7,40 @@ import {
   HiOutlineCamera,
   HiOutlineTrash,
   HiCheck,
-  HiX
+  HiX,
 } from "react-icons/hi";
 import { useAuth } from "../context/AuthContext";
 import { useToast } from "../context/ToastContext";
+import ChangePasswordModal from "../components/ChangePasswordModal";
+import { updateProfile, changeEmail, uploadAvatar } from "../services/auth";
 
 export default function Settings() {
   const { user } = useAuth();
   const toast = useToast();
-
-  // Profile States
   const [isEditing, setIsEditing] = useState(false);
   const [fullName, setFullName] = useState(user?.username || "Diksha");
   const [email, setEmail] = useState(user?.email || "dikshakarpe06@gmail.com");
 
-  // Photo & Cropping States
-  const [savedAvatar, setSavedAvatar] = useState(null);
+  const [savedAvatar, setSavedAvatar] = useState(
+    user?.profilePicture || localStorage.getItem("profilePicture") || null,
+  );
   const [tempAvatar, setTempAvatar] = useState(null);
+  const [avatarFile, setAvatarFile] = useState(null);
   const [cropZoom, setCropZoom] = useState(1);
   const [showCropModal, setShowCropModal] = useState(false);
 
-  // Preference States
-  const [theme, setTheme] = useState("light");
+  const [theme, setTheme] = useState(() =>
+    document.documentElement.classList.contains("dark") ? "dark" : "light",
+  );
 
-  // Password Modal
-  const [showPasswordModal, setShowPasswordModal] = useState(false);
-  const [passwords, setPasswords] = useState({ current: "", newPass: "", confirm: "" });
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+  const [saving, setSaving] = useState(false);
 
-  // 1. Handle File Selection for Avatar
   const handlePhotoSelect = (e) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
+      setAvatarFile(file);
+
       const objectUrl = URL.createObjectURL(file);
       setTempAvatar(objectUrl);
       setCropZoom(1);
@@ -45,48 +48,96 @@ export default function Settings() {
     }
   };
 
-  // 2. Commit Profile Changes
-  const handleSaveProfile = () => {
-    if (tempAvatar) {
-      setSavedAvatar(tempAvatar);
+  const handleSaveProfile = async () => {
+    setSaving(true);
+    try {
+      let currentAvatarUrl = savedAvatar;
+
+      if (avatarFile) {
+        const updatedUser = await uploadAvatar(avatarFile);
+
+        const newAvatarUrl = updatedUser?.profilePicture || updatedUser;
+
+        setSavedAvatar(newAvatarUrl);
+        localStorage.setItem("profilePicture", newAvatarUrl);
+      }
+
+      await updateProfile(fullName, currentAvatarUrl);
+
+      if (fullName) {
+        localStorage.setItem("username", fullName);
+      }
+
+      const originalEmail = user?.email || localStorage.getItem("email");
+      if (email && email !== originalEmail) {
+        const confirmPassword = prompt(
+          "To change your email address, please enter your current password:",
+        );
+
+        if (confirmPassword) {
+          await changeEmail(email, confirmPassword);
+          localStorage.setItem("email", email);
+          toast?.success
+            ? toast.success("Profile and email updated successfully!")
+            : alert("Profile and email updated!");
+        } else {
+          toast?.error
+            ? toast.error("Email update canceled: Password required.")
+            : alert("Email update canceled.");
+          setEmail(originalEmail);
+        }
+      } else {
+        toast?.success
+          ? toast.success("Profile saved successfully!")
+          : alert("Profile saved!");
+      }
+
+      setIsEditing(false);
+      setAvatarFile(null);
+      setTempAvatar(null);
+    } catch (err) {
+      console.error("Failed to save profile:", err);
+      const errMsg =
+        err.response?.data || err.message || "Failed to update profile.";
+      toast?.error ? toast.error(errMsg) : alert(errMsg);
+    } finally {
+      setSaving(false);
     }
-    setIsEditing(false);
-    toast?.success ? toast.success("Profile saved successfully!") : alert("Profile saved!");
   };
 
-  // 3. Cancel Profile Changes
   const handleCancelProfile = () => {
-    setFullName(user?.username || "Diksha");
-    setEmail(user?.email || "dikshakarpe06@gmail.com");
-    setTempAvatar(savedAvatar);
+    setFullName(user?.username || localStorage.getItem("username") || "Diksha");
+    setEmail(
+      user?.email || localStorage.getItem("email") || "dikshakarpe06@gmail.com",
+    );
+    setTempAvatar(null);
+    setAvatarFile(null);
     setIsEditing(false);
   };
 
-  // 4. Theme Switcher (Light / Dark)
   const handleThemeChange = (selectedTheme) => {
+    if (theme === selectedTheme) return;
     setTheme(selectedTheme);
     const root = document.documentElement;
     if (selectedTheme === "dark") {
       root.classList.add("dark");
+      localStorage.setItem("theme", "dark");
     } else {
       root.classList.remove("dark");
+      localStorage.setItem("theme", "light");
     }
-    toast?.info ? toast.info(`Theme set to ${selectedTheme}`) : null;
   };
 
   return (
-    <div className="p-8 w-full space-y-8 animate-fadeIn">
-      {/* Main Full-Width Settings Box */}
-      <div className="bg-white dark:bg-slate-900 border border-gray-200 dark:border-slate-800 rounded-[28px] p-8 shadow-sm space-y-10 w-full">
-        
-        {/* SECTION 1: PROFILE INFORMATION */}
+    <div className="w-full min-h-screen bg-[#F4F5F8] dark:bg-[#09090b] p-4 sm:p-6 space-y-6">
+      <div className="bg-white dark:bg-[#121215] border border-zinc-200/80 dark:border-zinc-800 rounded-3xl p-6 sm:p-8 shadow-xs space-y-10 w-full">
         <div className="space-y-6">
-          <div className="flex items-center justify-between pb-2 border-b border-gray-100 dark:border-slate-800">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-zinc-100 dark:border-zinc-800">
             <div>
-              <h2 className="text-lg font-bold text-gray-900 dark:text-white">
+              <h2 className="text-base font-bold text-zinc-900 dark:text-white">
                 Profile Information
               </h2>
-              <p className="text-xs text-gray-500 dark:text-slate-400 mt-0.5">
+              <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
                 Update your personal details and display photo.
               </p>
             </div>
@@ -94,21 +145,24 @@ export default function Settings() {
             {!isEditing ? (
               <button
                 onClick={() => setIsEditing(true)}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-2xl border border-indigo-200 dark:border-indigo-900/50 text-[#6139ff] text-xs font-semibold hover:bg-indigo-50 dark:hover:bg-indigo-950/30 transition"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-zinc-200 dark:border-zinc-700 text-zinc-800 dark:text-zinc-200 text-xs font-semibold hover:bg-zinc-100 dark:hover:bg-zinc-800 transition cursor-pointer self-start sm:self-auto"
               >
                 <HiOutlinePencil size={15} /> Edit Profile
               </button>
             ) : (
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 self-start sm:self-auto">
                 <button
                   onClick={handleSaveProfile}
-                  className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-2xl bg-[#6139ff] text-white text-xs font-semibold hover:bg-indigo-700 transition shadow-md shadow-indigo-200 dark:shadow-none"
+                  disabled={saving}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 text-xs font-semibold hover:bg-zinc-800 dark:hover:bg-white transition shadow-xs cursor-pointer disabled:opacity-50"
                 >
-                  <HiCheck size={16} /> Save Changes
+                  <HiCheck size={16} />{" "}
+                  {saving ? "Uploading..." : "Save Changes"}
                 </button>
                 <button
                   onClick={handleCancelProfile}
-                  className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-2xl border border-gray-200 dark:border-slate-700 text-gray-600 dark:text-slate-300 text-xs font-semibold hover:bg-gray-50 dark:hover:bg-slate-800 transition"
+                  disabled={saving}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-300 text-xs font-semibold hover:bg-zinc-100 dark:hover:bg-zinc-800 transition cursor-pointer disabled:opacity-50"
                 >
                   <HiX size={16} /> Cancel
                 </button>
@@ -116,10 +170,9 @@ export default function Settings() {
             )}
           </div>
 
-          {/* Profile Photo Layout */}
-          <div className="flex flex-col sm:flex-row items-center gap-8 py-4 px-6 bg-gray-50/50 dark:bg-slate-950/40 rounded-2xl border border-gray-100 dark:border-slate-800/60">
+          <div className="flex flex-col sm:flex-row items-center gap-6 p-5 bg-zinc-50/80 dark:bg-[#09090b] rounded-2xl border border-zinc-200/80 dark:border-zinc-800/80">
             <div className="relative group shrink-0">
-              <div className="w-28 h-28 rounded-full bg-[#6139ff] flex items-center justify-center text-white font-bold text-4xl overflow-hidden border-4 border-white dark:border-slate-800 shadow-md">
+              <div className="w-28 h-28 rounded-full bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 font-bold text-3xl flex items-center justify-center overflow-hidden border-4 border-white dark:border-zinc-800 shadow-xs">
                 {tempAvatar || savedAvatar ? (
                   <img
                     src={tempAvatar || savedAvatar}
@@ -128,13 +181,13 @@ export default function Settings() {
                     style={{ transform: `scale(${isEditing ? cropZoom : 1})` }}
                   />
                 ) : (
-                  (fullName || "S").charAt(0).toUpperCase()
+                  (fullName || "D").charAt(0).toUpperCase()
                 )}
               </div>
 
               {isEditing && (
-                <label className="absolute bottom-1 right-1 p-2.5 bg-[#6139ff] hover:bg-indigo-700 rounded-full text-white shadow-lg cursor-pointer transition transform hover:scale-110">
-                  <HiOutlineCamera size={18} />
+                <label className="absolute bottom-0 right-0 p-2 bg-zinc-900 dark:bg-zinc-100 hover:bg-zinc-800 dark:hover:bg-white rounded-full text-white dark:text-zinc-900 shadow-md cursor-pointer transition transform hover:scale-105">
+                  <HiOutlineCamera size={16} />
                   <input
                     type="file"
                     accept="image/*"
@@ -146,28 +199,32 @@ export default function Settings() {
             </div>
 
             <div className="space-y-1 text-center sm:text-left flex-1">
-              <h3 className="text-base font-bold text-gray-900 dark:text-white">
-                {fullName}
+              <h3 className="text-base font-bold text-zinc-900 dark:text-white">
+                {fullName || user?.username || "User"}
               </h3>
-              <p className="text-xs text-gray-500 dark:text-slate-400">
-                {email}
+              <p className="text-xs text-zinc-500 dark:text-zinc-400">
+                {email || user?.email || "No email available"}
               </p>
               {isEditing ? (
-                <p className="text-xs text-[#6139ff] font-medium pt-1">
-                  Click the camera icon to upload and adjust your new avatar.
+                <p className="text-xs text-zinc-600 dark:text-zinc-300 font-medium pt-1">
+                  Click the camera icon to select a new avatar for Cloudinary
+                  upload.
                 </p>
               ) : (
-                <span className="inline-block mt-2 px-3 py-1 rounded-full bg-indigo-50 dark:bg-indigo-950/50 text-[#6139ff] text-xs font-semibold">
-                  Administrator
+                <span className="inline-block mt-2 px-3 py-0.5 rounded-full bg-zinc-200 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 text-[11px] font-bold">
+                  {user?.role === "ROLE_ADMIN"
+                    ? "Administrator"
+                    : user?.role === "ROLE_USER"
+                      ? "User"
+                      : user?.role || "Member"}
                 </span>
               )}
             </div>
           </div>
 
-          {/* Form Fields */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
             <div className="space-y-2">
-              <label className="text-xs font-semibold text-gray-600 dark:text-slate-400 uppercase tracking-wider">
+              <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
                 Full Name
               </label>
               <input
@@ -175,24 +232,39 @@ export default function Settings() {
                 disabled={!isEditing}
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
-                className="w-full px-4 py-3.5 rounded-2xl border border-gray-200 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-950/40 text-sm text-gray-900 dark:text-white disabled:opacity-75 outline-none focus:border-[#6139ff] transition"
+                className="w-full px-4 py-3 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/80 dark:bg-[#09090b] text-sm text-zinc-900 dark:text-white disabled:opacity-75 outline-none focus:ring-2 focus:ring-zinc-400 dark:focus:ring-zinc-700 transition"
               />
             </div>
 
             <div className="space-y-2">
-              <label className="text-xs font-semibold text-gray-600 dark:text-slate-400 uppercase tracking-wider">
-                Role
-              </label>
+              <div className="flex justify-between items-center">
+                <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
+                  Role
+                </label>
+                <span className="text-[10px] text-zinc-400 dark:text-zinc-500 font-medium">
+                  Read-only
+                </span>
+              </div>
               <input
                 type="text"
+                readOnly
                 disabled
-                value="Administrator"
-                className="w-full px-4 py-3.5 rounded-2xl border border-gray-100 dark:border-slate-800/80 bg-gray-100/50 dark:bg-slate-950/20 text-sm text-gray-400 dark:text-slate-500 cursor-not-allowed"
+                value={
+                  user?.role === "ROLE_ADMIN"
+                    ? "Administrator"
+                    : user?.role === "ROLE_USER"
+                      ? "User"
+                      : user?.role?.replace("ROLE_", "") || "User"
+                }
+                className="w-full px-4 py-3 rounded-2xl border border-zinc-100 dark:border-zinc-800/80 bg-zinc-100/50 dark:bg-[#09090b]/50 text-sm text-zinc-400 dark:text-zinc-500 cursor-not-allowed select-none"
               />
+              <p className="text-[11px] text-zinc-400 dark:text-zinc-500">
+                Account roles cannot be modified.
+              </p>
             </div>
 
             <div className="space-y-2 md:col-span-2">
-              <label className="text-xs font-semibold text-gray-600 dark:text-slate-400 uppercase tracking-wider">
+              <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
                 Email Address
               </label>
               <input
@@ -200,32 +272,31 @@ export default function Settings() {
                 disabled={!isEditing}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-3.5 rounded-2xl border border-gray-200 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-950/40 text-sm text-gray-900 dark:text-white disabled:opacity-75 outline-none focus:border-[#6139ff] transition"
+                className="w-full px-4 py-3 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/80 dark:bg-[#09090b] text-sm text-zinc-900 dark:text-white disabled:opacity-75 outline-none focus:ring-2 focus:ring-zinc-400 dark:focus:ring-zinc-700 transition"
               />
             </div>
           </div>
         </div>
 
-        <hr className="border-gray-100 dark:border-slate-800" />
+        <hr className="border-zinc-100 dark:border-zinc-800" />
 
-        {/* SECTION 2: APPEARANCE (LIGHT / DARK ONLY) */}
         <div className="space-y-4">
           <div>
-            <h2 className="text-lg font-bold text-gray-900 dark:text-white">
+            <h2 className="text-base font-bold text-zinc-900 dark:text-white">
               Interface Appearance
             </h2>
-            <p className="text-xs text-gray-500 dark:text-slate-400 mt-0.5">
+            <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
               Customize theme mode for the application interface.
             </p>
           </div>
 
-          <div className="p-1.5 rounded-2xl border border-gray-200 dark:border-slate-800 bg-gray-50/50 dark:bg-slate-950/40 flex gap-2 max-w-xs">
+          <div className="p-1.5 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/80 dark:bg-[#09090b] flex gap-2 max-w-xs">
             <button
               onClick={() => handleThemeChange("light")}
-              className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-semibold transition ${
+              className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-bold transition cursor-pointer ${
                 theme === "light"
-                  ? "bg-white dark:bg-slate-800 text-[#6139ff] shadow-sm"
-                  : "text-gray-500 dark:text-slate-400 hover:text-gray-900"
+                  ? "bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white shadow-xs"
+                  : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900"
               }`}
             >
               <HiOutlineSun size={16} /> Light
@@ -233,10 +304,10 @@ export default function Settings() {
 
             <button
               onClick={() => handleThemeChange("dark")}
-              className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl text-xs font-semibold transition ${
+              className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-bold transition cursor-pointer ${
                 theme === "dark"
-                  ? "bg-white dark:bg-slate-800 text-[#6139ff] shadow-sm"
-                  : "text-gray-500 dark:text-slate-400 hover:text-gray-900"
+                  ? "bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white shadow-xs"
+                  : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900"
               }`}
             >
               <HiOutlineMoon size={16} /> Dark
@@ -244,75 +315,75 @@ export default function Settings() {
           </div>
         </div>
 
-        <hr className="border-gray-100 dark:border-slate-800" />
+        <hr className="border-zinc-100 dark:border-zinc-800" />
 
-        {/* SECTION 3: SECURITY */}
         <div className="space-y-4">
           <div>
-            <h2 className="text-lg font-bold text-gray-900 dark:text-white">
+            <h2 className="text-base font-bold text-zinc-900 dark:text-white">
               Security & Passwords
             </h2>
-            <p className="text-xs text-gray-500 dark:text-slate-400 mt-0.5">
+            <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
               Manage login credentials for your account.
             </p>
           </div>
 
           <div>
             <button
-              onClick={() => setShowPasswordModal(true)}
-              className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl border border-indigo-200 dark:border-indigo-900/50 text-[#6139ff] text-xs font-semibold hover:bg-indigo-50 dark:hover:bg-indigo-950/30 transition"
+              onClick={() => setIsPasswordModalOpen(true)}
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-700 text-zinc-800 dark:text-zinc-200 text-xs font-semibold hover:bg-zinc-100 dark:hover:bg-zinc-800 transition cursor-pointer"
             >
               <HiOutlineLockClosed size={16} /> Change Account Password
             </button>
           </div>
         </div>
 
-        <hr className="border-gray-100 dark:border-slate-800" />
+        <hr className="border-zinc-100 dark:border-zinc-800" />
 
-        {/* SECTION 4: DANGER ZONE */}
         <div className="space-y-3 pt-2">
-          <h2 className="text-lg font-bold text-red-600 dark:text-red-400">
+          <h2 className="text-base font-bold text-red-600 dark:text-red-400">
             Danger Zone
           </h2>
-          <div className="p-6 rounded-2xl border border-red-200 dark:border-red-950/60 bg-red-50/30 dark:bg-red-950/20 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="p-5 rounded-2xl border border-red-200 dark:border-red-950/60 bg-red-50/40 dark:bg-red-950/20 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
             <div>
-              <p className="text-sm font-semibold text-gray-900 dark:text-white">
+              <p className="text-sm font-bold text-zinc-900 dark:text-white">
                 Delete Account
               </p>
-              <p className="text-xs text-gray-500 dark:text-slate-400 mt-0.5">
-                Permanently delete your profile and remove all stored extraction history.
+              <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
+                Permanently delete your profile and remove all stored extraction
+                history.
               </p>
             </div>
             <button
-              onClick={() => alert("Please contact system administrator to purge database account records.")}
-              className="inline-flex items-center gap-2 px-5 py-3 rounded-2xl bg-red-600 hover:bg-red-700 text-white text-xs font-semibold transition shrink-0 shadow-md shadow-red-200 dark:shadow-none"
+              onClick={() =>
+                alert(
+                  "Please contact system administrator to purge database account records.",
+                )
+              }
+              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-semibold transition shrink-0 cursor-pointer shadow-xs"
             >
               <HiOutlineTrash size={16} /> Delete Account
             </button>
           </div>
         </div>
-
       </div>
 
-      {/* CROP & PREVIEW PHOTO MODAL */}
       {showCropModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 max-w-md w-full border border-gray-200 dark:border-slate-800 shadow-2xl space-y-6">
+        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+          <div className="bg-white dark:bg-[#121215] rounded-3xl p-6 max-w-md w-full border border-zinc-200 dark:border-zinc-800 shadow-xl space-y-6">
             <div className="flex items-center justify-between">
-              <h3 className="text-base font-bold text-gray-900 dark:text-white">
+              <h3 className="text-base font-bold text-zinc-900 dark:text-white">
                 Adjust & Zoom Profile Photo
               </h3>
               <button
                 onClick={() => setShowCropModal(false)}
-                className="p-1 rounded-full text-gray-400 hover:text-gray-900"
+                className="p-1 rounded-full text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition cursor-pointer"
               >
                 <HiX size={20} />
               </button>
             </div>
 
-            {/* Circular Preview Container */}
-            <div className="flex justify-center py-4">
-              <div className="w-40 h-40 rounded-full overflow-hidden border-4 border-[#6139ff] shadow-lg flex items-center justify-center bg-slate-950">
+            <div className="flex justify-center py-2">
+              <div className="w-36 h-36 rounded-full overflow-hidden border-4 border-zinc-900 dark:border-zinc-100 shadow-md flex items-center justify-center bg-zinc-950">
                 <img
                   src={tempAvatar}
                   alt="Crop Preview"
@@ -322,9 +393,8 @@ export default function Settings() {
               </div>
             </div>
 
-            {/* Zoom Slider */}
             <div className="space-y-2">
-              <div className="flex justify-between text-xs text-gray-500 font-medium">
+              <div className="flex justify-between text-xs text-zinc-500 font-medium">
                 <span>Zoom Out</span>
                 <span>{Math.round(cropZoom * 100)}%</span>
                 <span>Zoom In</span>
@@ -336,14 +406,14 @@ export default function Settings() {
                 step="0.05"
                 value={cropZoom}
                 onChange={(e) => setCropZoom(Number(e.target.value))}
-                className="w-full accent-[#6139ff] cursor-pointer"
+                className="w-full accent-zinc-900 dark:accent-zinc-100 cursor-pointer"
               />
             </div>
 
             <div className="flex justify-end gap-3 pt-2">
               <button
                 onClick={() => setShowCropModal(false)}
-                className="px-4 py-2 rounded-xl text-xs font-semibold border border-gray-200 text-gray-600 hover:bg-gray-50"
+                className="px-4 py-2 rounded-xl text-xs font-semibold bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 hover:bg-zinc-800 dark:hover:bg-white transition cursor-pointer"
               >
                 Done
               </button>
@@ -352,71 +422,10 @@ export default function Settings() {
         </div>
       )}
 
-      {/* CHANGE PASSWORD MODAL */}
-      {showPasswordModal && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-slate-900 rounded-3xl p-6 max-w-md w-full border border-gray-200 dark:border-slate-800 shadow-2xl space-y-5">
-            <div className="flex items-center justify-between">
-              <h3 className="text-base font-bold text-gray-900 dark:text-white">
-                Change Account Password
-              </h3>
-              <button
-                onClick={() => setShowPasswordModal(false)}
-                className="p-1 rounded-full text-gray-400 hover:text-gray-900"
-              >
-                <HiX size={20} />
-              </button>
-            </div>
-
-            <div className="space-y-3">
-              <input
-                type="password"
-                placeholder="Current Password"
-                value={passwords.current}
-                onChange={(e) => setPasswords({ ...passwords, current: e.target.value })}
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-800 bg-gray-50 dark:bg-slate-950 text-sm outline-none focus:border-[#6139ff]"
-              />
-              <input
-                type="password"
-                placeholder="New Password"
-                value={passwords.newPass}
-                onChange={(e) => setPasswords({ ...passwords, newPass: e.target.value })}
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-800 bg-gray-50 dark:bg-slate-950 text-sm outline-none focus:border-[#6139ff]"
-              />
-              <input
-                type="password"
-                placeholder="Confirm New Password"
-                value={passwords.confirm}
-                onChange={(e) => setPasswords({ ...passwords, confirm: e.target.value })}
-                className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-slate-800 bg-gray-50 dark:bg-slate-950 text-sm outline-none focus:border-[#6139ff]"
-              />
-            </div>
-
-            <div className="flex justify-end gap-2 pt-2">
-              <button
-                onClick={() => setShowPasswordModal(false)}
-                className="px-4 py-2 rounded-xl text-xs font-semibold text-gray-500 hover:bg-gray-100"
-              >
-                Cancel
-              </button>
-              <button
-                onClick={() => {
-                  setShowPasswordModal(false);
-                  toast?.success ? toast.success("Password updated successfully!") : alert("Password updated!");
-                }}
-                className="px-5 py-2.5 rounded-xl bg-[#6139ff] text-white text-xs font-semibold hover:bg-indigo-700"
-              >
-                Update Password
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Footer */}
-      <div className="text-center text-xs text-gray-400 dark:text-slate-600">
-        © 2026 PDF2DATA. All rights reserved.
-      </div>
+      <ChangePasswordModal
+        open={isPasswordModalOpen}
+        onClose={() => setIsPasswordModalOpen(false)}
+      />
     </div>
   );
 }

@@ -6,16 +6,18 @@ const api = axios.create({
   baseURL: API_BASE_URL,
 });
 
-// Attach JWT to every outgoing request
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem("token");
-  if (token) {
+
+  if (token && token !== "null" && token !== "undefined" && token.trim() !== "") {
     config.headers.Authorization = `Bearer ${token}`;
+  } else {
+    delete config.headers.Authorization;
   }
+
   return config;
 });
 
-// Global handling for expired / invalid sessions
 api.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -23,6 +25,8 @@ api.interceptors.response.use(
       localStorage.removeItem("token");
       localStorage.removeItem("username");
       localStorage.removeItem("role");
+      localStorage.removeItem("email");
+      
       if (window.location.pathname !== "/login") {
         window.location.href = "/login";
       }

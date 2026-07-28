@@ -7,12 +7,20 @@ import {
   HiOutlineTrash,
   HiStar,
   HiOutlineStar,
-  HiOutlineDownload,
-  HiOutlineExclamation,
   HiArrowUp,
 } from "react-icons/hi";
-import { getSessionDetails, askQuestion, renameSession, togglePinSession, deleteSession } from "../services/chatService";
-import { uploadAndExtract, getExtractionData, exportDocument } from "../services/documentService";
+import {
+  getSessionDetails,
+  askQuestion,
+  renameSession,
+  togglePinSession,
+  deleteSession,
+} from "../services/chatService";
+import {
+  uploadAndExtract,
+  getExtractionData,
+  exportDocument,
+} from "../services/documentService";
 import { useToast } from "../context/ToastContext";
 import ConfirmModal from "../components/ConfirmModal";
 
@@ -63,8 +71,7 @@ export default function ChatSession() {
     } finally {
       setLoadingSession(false);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [sessionId]);
+  }, [sessionId, toast]);
 
   useEffect(() => {
     loadSession();
@@ -96,7 +103,12 @@ export default function ChatSession() {
     setInput("");
     setMessages((prev) => [
       ...prev,
-      { id: `local-${Date.now()}`, role: "USER", message, createdAt: new Date().toISOString() },
+      {
+        id: `local-${Date.now()}`,
+        role: "USER",
+        message,
+        createdAt: new Date().toISOString(),
+      },
     ]);
     setAsking(true);
 
@@ -113,7 +125,8 @@ export default function ChatSession() {
       ]);
     } catch (err) {
       console.error(err);
-      const msg = err.response?.data || "Something went wrong. Please try again.";
+      const msg =
+        err.response?.data || "Something went wrong. Please try again.";
       toast.error(typeof msg === "string" ? msg : "Something went wrong.");
       setMessages((prev) => [
         ...prev,
@@ -206,224 +219,274 @@ export default function ChatSession() {
 
   if (loadingSession) {
     return (
-      <div className="pt-24 flex items-center justify-center text-gray-400 text-sm">
-        Loading chat...
+      <div className="w-full h-full flex items-center justify-center text-zinc-400 dark:text-zinc-500 text-sm font-semibold">
+        Loading chat session...
       </div>
     );
   }
 
   return (
-    <div className="pt-6 pb-6 flex h-[calc(100vh-140px)] gap-6">
-      {/* Chat panel */}
-      <div className="flex-1 flex flex-col bg-white dark:bg-slate-900 rounded-[24px] border border-gray-300 dark:border-slate-800 overflow-hidden">
-        {/* Header */}
-        <div className="flex items-center justify-between gap-3 px-5 py-4 border-b border-gray-100 dark:border-slate-800">
-          <div className="min-w-0 flex-1">
-            {editingTitle ? (
-              <input
-                autoFocus
-                value={titleDraft}
-                onChange={(e) => setTitleDraft(e.target.value)}
-                onBlur={submitTitle}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") submitTitle();
-                  if (e.key === "Escape") setEditingTitle(false);
-                }}
-                className="text-lg font-bold w-full outline-none border-b border-indigo-300 dark:bg-slate-900 dark:text-white"
-              />
-            ) : (
-              <h2
-                onDoubleClick={() => {
+    <div className="w-full h-[calc(100vh-80px)] bg-[#F4F5F8] dark:bg-[#09090b] p-4 sm:p-6 flex flex-col overflow-hidden">
+      
+      <style>{`
+        ::-webkit-scrollbar {
+          width: 6px;
+          height: 6px;
+        }
+        ::-webkit-scrollbar-button {
+          display: none !important;
+          width: 0 !important;
+          height: 0 !important;
+        }
+        ::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+          background: #cbd5e1;
+          border-radius: 9999px;
+        }
+        .dark ::-webkit-scrollbar-thumb {
+          background: #27272a;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+          background: #94a3b8;
+        }
+        .dark ::-webkit-scrollbar-thumb:hover {
+          background: #3f3f46;
+        }
+        * {
+          scrollbar-width: thin;
+          scrollbar-color: #cbd5e1 transparent;
+        }
+        .dark * {
+          scrollbar-color: #27272a transparent;
+        }
+      `}</style>
+
+      <div className="flex-1 flex flex-col lg:flex-row gap-6 h-full min-h-0 overflow-hidden">
+        <div className="flex-1 flex flex-col bg-white dark:bg-[#121215] rounded-3xl border border-zinc-200/80 dark:border-zinc-800 shadow-xs overflow-hidden h-full"> 
+          <div className="flex items-center justify-between gap-3 px-5 py-4 border-b border-zinc-100 dark:border-zinc-800/80 shrink-0 bg-white dark:bg-[#121215]">
+            <div className="min-w-0 flex-1">
+              {editingTitle ? (
+                <input
+                  autoFocus
+                  value={titleDraft}
+                  onChange={(e) => setTitleDraft(e.target.value)}
+                  onBlur={submitTitle}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") submitTitle();
+                    if (e.key === "Escape") setEditingTitle(false);
+                  }}
+                  className="text-base font-bold w-full outline-none border-b border-zinc-400 dark:border-zinc-600 bg-transparent text-zinc-900 dark:text-white"
+                />
+              ) : (
+                <h2
+                  onDoubleClick={() => {
+                    setTitleDraft(session?.title || "");
+                    setEditingTitle(true);
+                  }}
+                  className="text-base font-bold text-zinc-900 dark:text-white truncate cursor-text"
+                  title="Double-click to rename"
+                >
+                  {session?.title}
+                </h2>
+              )}
+              <p className="text-xs text-zinc-400 dark:text-zinc-500 mt-0.5 truncate">
+                {session?.fileName}
+              </p>
+            </div>
+
+            <div className="flex items-center gap-1 shrink-0">
+              <button
+                onClick={handlePin}
+                title={session?.pinned ? "Unpin" : "Pin"}
+                className="p-1.5 rounded-xl text-zinc-400 hover:text-amber-400 dark:hover:text-amber-400 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition cursor-pointer"
+              >
+                {session?.pinned ? (
+                  <HiStar size={18} className="text-amber-400" />
+                ) : (
+                  <HiOutlineStar size={18} />
+                )}
+              </button>
+              <button
+                onClick={() => {
                   setTitleDraft(session?.title || "");
                   setEditingTitle(true);
                 }}
-                className="text-lg font-bold text-gray-900 dark:text-white truncate"
-                title="Double-click to rename"
+                title="Rename"
+                className="p-1.5 rounded-xl text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition cursor-pointer"
               >
-                {session?.title}
-              </h2>
-            )}
-            <p className="text-xs text-gray-500 dark:text-slate-400 mt-0.5">
-              {session?.fileName}
-            </p>
+                <HiOutlinePencil size={16} />
+              </button>
+              <button
+                onClick={() => setConfirmDelete(true)}
+                title="Delete"
+                className="p-1.5 rounded-xl text-zinc-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition cursor-pointer"
+              >
+                <HiOutlineTrash size={16} />
+              </button>
+            </div>
           </div>
-          <div className="flex items-center gap-1 shrink-0">
-            <button
-              onClick={handlePin}
-              title={session?.pinned ? "Unpin" : "Pin"}
-              className="p-2 rounded-lg text-gray-400 hover:text-amber-400 hover:bg-amber-50 dark:hover:bg-slate-800 transition"
-            >
-              {session?.pinned ? (
-                <HiStar size={18} className="text-amber-400" />
-              ) : (
-                <HiOutlineStar size={18} />
-              )}
-            </button>
-            <button
-              onClick={() => {
-                setTitleDraft(session?.title || "");
-                setEditingTitle(true);
-              }}
-              title="Rename"
-              className="p-2 rounded-lg text-gray-400 hover:text-[#6139ff] hover:bg-indigo-50 dark:hover:bg-slate-800 transition"
-            >
-              <HiOutlinePencil size={16} />
-            </button>
-            <button
-              onClick={() => setConfirmDelete(true)}
-              title="Delete"
-              className="p-2 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition"
-            >
-              <HiOutlineTrash size={16} />
-            </button>
-          </div>
-        </div>
 
-        {/* Document tabs */}
-        <div className="flex items-center gap-2 px-5 py-3 border-b border-gray-100 dark:border-slate-800 flex-wrap">
-          {documents.map((doc) => (
-            <button
-              key={doc.documentId}
-              onClick={() => setActiveDocId(doc.documentId)}
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm transition ${
-                activeDocId === doc.documentId
-                  ? "bg-[#6139ff] text-white"
-                  : "bg-gray-50 dark:bg-slate-800 text-gray-600 dark:text-slate-300 hover:bg-gray-100 dark:hover:bg-slate-700"
-              }`}
-            >
-              <HiOutlineDocumentText
-                className={activeDocId === doc.documentId ? "text-white" : "text-red-500"}
-                size={16}
-              />
-              <span className="truncate max-w-[140px]">{doc.fileName}</span>
-            </button>
-          ))}
-          <button
-            onClick={() => fileInputRef.current.click()}
-            disabled={uploading}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-dashed border-gray-300 dark:border-slate-700 text-sm text-gray-500 hover:border-[#6139ff] hover:text-[#6139ff] transition disabled:opacity-50"
-          >
-            <HiOutlinePaperClip size={16} />
-            {uploading ? "Uploading..." : "Add Document"}
-          </button>
-          <input
-            type="file"
-            accept=".pdf,image/*"
-            ref={fileInputRef}
-            className="hidden"
-            onChange={handleAddDocument}
-          />
-        </div>
-
-        {/* Messages */}
-        <div className="flex-1 overflow-y-auto custom-scrollbar p-6 space-y-4">
-          {messages.length === 0 && (
-            <p className="text-center text-gray-400 text-sm mt-10">
-              Ask anything about the document{documents.length > 1 ? "s" : ""} above.
-            </p>
-          )}
-          {messages.map((msg) => (
-            <div
-              key={msg.id}
-              className={`flex ${msg.role === "USER" ? "justify-end" : "justify-start"}`}
-            >
-              <div
-                className={`max-w-[75%] px-4 py-3 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap ${
-                  msg.role === "USER"
-                    ? "bg-[#6139ff] text-white rounded-br-sm"
-                    : "bg-gray-50 dark:bg-slate-800 text-gray-800 dark:text-slate-100 border border-gray-100 dark:border-slate-700 rounded-bl-sm"
+          <div className="flex items-center gap-2 px-5 py-3 border-b border-zinc-100 dark:border-zinc-800/80 overflow-x-auto shrink-0 bg-white dark:bg-[#121215]">
+            {documents.map((doc) => (
+              <button
+                key={doc.documentId}
+                onClick={() => setActiveDocId(doc.documentId)}
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-semibold transition shrink-0 cursor-pointer ${
+                  activeDocId === doc.documentId
+                    ? "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 shadow-xs"
+                    : "bg-zinc-100 dark:bg-zinc-800/60 text-zinc-600 dark:text-zinc-400 hover:bg-zinc-200 dark:hover:bg-zinc-700"
                 }`}
               >
-                {msg.message}
+                <HiOutlineDocumentText size={15} />
+                <span className="truncate max-w-[140px]">{doc.fileName}</span>
+              </button>
+            ))}
+            <button
+              onClick={() => fileInputRef.current.click()}
+              disabled={uploading}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-dashed border-zinc-300 dark:border-zinc-700 text-xs font-semibold text-zinc-500 hover:border-zinc-800 dark:hover:border-zinc-300 hover:text-zinc-900 dark:hover:text-zinc-100 transition disabled:opacity-50 shrink-0 cursor-pointer"
+            >
+              <HiOutlinePaperClip size={15} />
+              <span>{uploading ? "Uploading..." : "Add Document"}</span>
+            </button>
+            <input
+              type="file"
+              accept=".pdf,image/*"
+              ref={fileInputRef}
+              className="hidden"
+              onChange={handleAddDocument}
+            />
+          </div>
+
+          <div className="flex-1 overflow-y-auto p-5 space-y-4 min-h-0">
+            {messages.length === 0 && (
+              <div className="h-full flex items-center justify-center text-zinc-400 dark:text-zinc-500 text-xs font-medium">
+                Ask anything about the document{documents.length > 1 ? "s" : ""} attached above.
               </div>
-            </div>
-          ))}
-          {asking && (
-            <div className="flex justify-start">
-              <div className="px-4 py-3 rounded-2xl bg-gray-50 dark:bg-slate-800 border border-gray-100 dark:border-slate-700 text-sm text-gray-400 flex items-center gap-2">
-                <span className="w-1.5 h-1.5 rounded-full bg-gray-400 animate-bounce [animation-delay:-0.3s]" />
-                <span className="w-1.5 h-1.5 rounded-full bg-gray-400 animate-bounce [animation-delay:-0.15s]" />
-                <span className="w-1.5 h-1.5 rounded-full bg-gray-400 animate-bounce" />
-              </div>
-            </div>
-          )}
-          <div ref={messagesEndRef} />
-        </div>
-
-        {/* Input */}
-        <div className="flex items-center gap-3 p-4 border-t border-gray-100 dark:border-slate-800">
-          <input
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault();
-                handleSend();
-              }
-            }}
-            placeholder="Type your message..."
-            disabled={asking}
-            className="flex-1 px-4 py-2.5 rounded-xl bg-gray-50 dark:bg-slate-800 outline-none text-sm dark:text-white disabled:opacity-60"
-          />
-          <button
-            onClick={handleSend}
-            disabled={asking || !input.trim()}
-            className="p-3 rounded-full bg-[#6139ff] text-white disabled:opacity-40 hover:bg-indigo-700 transition"
-          >
-            <HiArrowUp size={16} />
-          </button>
-        </div>
-        <p className="text-center text-[11px] text-gray-400 pb-3">
-          AI responses may not always be accurate. Please verify important information.
-        </p>
-      </div>
-
-      {/* Extraction result panel */}
-      <div className="w-[360px] bg-white dark:bg-slate-900 rounded-[24px] border border-gray-300 dark:border-slate-800 p-5 flex flex-col overflow-hidden">
-        <h3 className="font-bold text-gray-900 dark:text-white">Extraction Result</h3>
-
-        {!activeDocId ? (
-          <p className="text-sm text-gray-400 mt-4">No document selected.</p>
-        ) : extractionLoading ? (
-          <p className="text-sm text-gray-400 mt-4">Loading...</p>
-        ) : !extraction ? (
-          <p className="text-sm text-gray-400 mt-4">No extraction data found.</p>
-        ) : (
-          <>
-            <div className="mt-4 flex-1 overflow-y-auto custom-scrollbar space-y-3 pr-1">
-              {Object.entries(extraction).map(([key, value]) => (
-                <div key={key}>
-                  <p className="text-xs text-gray-500 capitalize">
-                    {key.replace(/_/g, " ")}
-                  </p>
-                  {value && typeof value === "object" ? (
-                    <pre className="mt-1.5 p-3 rounded-lg bg-gray-100 dark:bg-slate-800 text-xs overflow-auto max-h-40 custom-scrollbar whitespace-pre-wrap break-words">
-                      {JSON.stringify(value, null, 2)}
-                    </pre>
-                  ) : (
-                    <p className="text-sm font-semibold dark:text-white mt-0.5 break-words">
-                      {value === null || value === undefined || value === "" ? "—" : String(value)}
-                    </p>
-                  )}
-                </div>
-              ))}
-            </div>
-
-            <div className="mt-4 flex gap-2 flex-shrink-0">
-              {["json", "csv", "excel", "sql"].map((fmt) => (
-                <button
-                  key={fmt}
-                  onClick={() => handleExport(fmt)}
-                  disabled={exporting === fmt}
-                  className="flex-1 flex items-center justify-center gap-1 py-2 rounded-xl border border-gray-200 dark:border-slate-700 text-xs font-semibold text-gray-600 dark:text-slate-300 hover:border-[#6139ff] hover:text-[#6139ff] transition disabled:opacity-50"
+            )}
+            {messages.map((msg) => (
+              <div
+                key={msg.id}
+                className={`flex ${
+                  msg.role === "USER" ? "justify-end" : "justify-start"
+                }`}
+              >
+                <div
+                  className={`max-w-[80%] px-4 py-3 rounded-2xl text-sm leading-relaxed whitespace-pre-wrap ${
+                    msg.role === "USER"
+                      ? "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 rounded-br-xs shadow-xs"
+                      : "bg-zinc-100 dark:bg-[#09090b] text-zinc-800 dark:text-zinc-200 border border-zinc-200/80 dark:border-zinc-800/80 rounded-bl-xs"
+                  }`}
                 >
-                  <HiOutlineDownload size={12} />
-                  {exporting === fmt ? "..." : fmt.toUpperCase()}
-                </button>
-              ))}
+                  {msg.message}
+                </div>
+              </div>
+            ))}
+            {asking && (
+              <div className="flex justify-start">
+                <div className="px-4 py-3 rounded-2xl bg-zinc-100 dark:bg-[#09090b] border border-zinc-200/80 dark:border-zinc-800/80 text-sm text-zinc-400 flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-zinc-400 animate-bounce [animation-delay:-0.3s]" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-zinc-400 animate-bounce [animation-delay:-0.15s]" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-zinc-400 animate-bounce" />
+                </div>
+              </div>
+            )}
+            <div ref={messagesEndRef} />
+          </div>
+
+          <div className="p-4 border-t border-zinc-100 dark:border-zinc-800/80 shrink-0 space-y-2 bg-white dark:bg-[#121215]">
+            <div className="flex items-center gap-2">
+              <input
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSend();
+                  }
+                }}
+                placeholder="Type your message..."
+                disabled={asking}
+                className="flex-1 px-4 py-2.5 rounded-2xl bg-zinc-50 dark:bg-[#09090b] border border-zinc-200 dark:border-zinc-800 outline-none text-sm text-zinc-800 dark:text-zinc-100 placeholder-zinc-400 focus:ring-2 focus:ring-zinc-400 dark:focus:ring-zinc-700 transition disabled:opacity-60"
+              />
+              <button
+                onClick={handleSend}
+                disabled={asking || !input.trim()}
+                className="p-3 rounded-2xl bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 disabled:opacity-40 hover:bg-zinc-800 dark:hover:bg-white transition cursor-pointer shadow-xs"
+              >
+                <HiArrowUp size={16} />
+              </button>
             </div>
-          </>
-        )}
+            <p className="text-center text-[11px] text-zinc-400 dark:text-zinc-500 font-medium">
+              AI responses may not always be accurate. Please verify important details.
+            </p>
+          </div>
+        </div>
+
+        <div className="w-full lg:w-[380px] bg-white dark:bg-[#121215] rounded-3xl border border-zinc-200/80 dark:border-zinc-800 p-5 flex flex-col shadow-xs overflow-hidden shrink-0 h-full">
+          <h3 className="text-sm font-bold text-zinc-900 dark:text-white pb-3 border-b border-zinc-100 dark:border-zinc-800/80 shrink-0">
+            Extraction Result
+          </h3>
+
+          {!activeDocId ? (
+            <div className="flex-1 flex items-center justify-center text-xs text-zinc-400 dark:text-zinc-500 font-medium">
+              No document selected.
+            </div>
+          ) : extractionLoading ? (
+            <div className="flex-1 flex items-center justify-center text-xs text-zinc-400 dark:text-zinc-500 font-medium">
+              Loading extraction...
+            </div>
+          ) : !extraction ? (
+            <div className="flex-1 flex items-center justify-center text-xs text-zinc-400 dark:text-zinc-500 font-medium">
+              No extraction data found.
+            </div>
+          ) : (
+            <>
+              <div className="flex-1 overflow-y-auto my-3 space-y-3 pr-1 min-h-0">
+                {Object.entries(extraction).map(([key, value]) => (
+                  <div
+                    key={key}
+                    className="p-3 bg-zinc-50/80 dark:bg-[#09090b] rounded-2xl border border-zinc-200/80 dark:border-zinc-800/80"
+                  >
+                    <span className="text-[10px] font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider block mb-1">
+                      {key.replace(/_/g, " ")}
+                    </span>
+                    {value && typeof value === "object" ? (
+                      <pre className="p-2.5 rounded-xl bg-white dark:bg-[#121215] border border-zinc-200 dark:border-zinc-800 text-[11px] font-mono text-zinc-700 dark:text-zinc-300 overflow-x-auto whitespace-pre-wrap break-words">
+                        {JSON.stringify(value, null, 2)}
+                      </pre>
+                    ) : (
+                      <p className="text-xs font-semibold text-zinc-800 dark:text-zinc-100 break-words">
+                        {value === null || value === undefined || value === ""
+                          ? "—"
+                          : String(value)}
+                      </p>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              <div className="pt-3 border-t border-zinc-100 dark:border-zinc-800/80 flex items-center gap-1.5 shrink-0">
+                <span className="text-[10px] font-bold text-zinc-400 uppercase tracking-wider mr-1">
+                  Export:
+                </span>
+                {["json", "csv", "excel", "sql"].map((fmt) => (
+                  <button
+                    key={fmt}
+                    onClick={() => handleExport(fmt)}
+                    disabled={exporting === fmt}
+                    className="flex-1 py-1 rounded-lg bg-zinc-100 dark:bg-zinc-800 text-[10px] font-bold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-200 dark:hover:bg-zinc-700 transition uppercase cursor-pointer"
+                  >
+                    {exporting === fmt ? "..." : fmt}
+                  </button>
+                ))}
+              </div>
+            </>
+          )}
+        </div>
+
       </div>
 
       <ConfirmModal
