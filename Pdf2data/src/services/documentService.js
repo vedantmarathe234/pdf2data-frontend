@@ -1,30 +1,32 @@
 import api from "./api";
+import axios from "axios";
 
-/**
- * Upload a document for AI extraction.
- * If chatSessionId is provided, the document is attached to that
- * existing chat session instead of creating a new one.
- */
 export const uploadAndExtract = async (file, prompt, chatSessionId) => {
   const formData = new FormData();
+  
   formData.append("file", file);
-  formData.append("prompt", prompt || "Extract all structured data");
-  if (chatSessionId) {
+
+  formData.append("prompt", prompt ? prompt.trim() : "");
+
+  if (chatSessionId && chatSessionId !== "null" && chatSessionId !== "undefined") {
     formData.append("chatSessionId", chatSessionId);
   }
 
-  const response = await api.post("/processing/upload", formData, {
-    headers: { "Content-Type": "multipart/form-data" },
-  });
+  const token = localStorage.getItem("token");
 
-  return response.data; // ProcessingResponse
+  const response = await axios.post(
+    "http://localhost:8080/api/processing/upload",
+    formData,
+    {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
+  );
+
+  return response.data;
 };
 
-/**
- * Fetch the stored structured extraction result for a document
- * (backed by /api/export/json/{documentId}) so it can be rendered
- * inline instead of only being downloadable.
- */
 export const getExtractionData = async (documentId) => {
   const response = await api.get(`/export/json/${documentId}`);
   return response.data;
@@ -48,10 +50,7 @@ const EXPORT_META = {
   sql: { path: "sql", ext: "sql" },
 };
 
-/**
- * Download an extraction result in the given format.
- * format: "json" | "csv" | "excel" | "sql"
- */
+
 export const exportDocument = async (documentId, format) => {
   const meta = EXPORT_META[format];
   if (!meta) throw new Error(`Unsupported export format: ${format}`);
@@ -63,9 +62,7 @@ export const exportDocument = async (documentId, format) => {
   triggerBrowserDownload(response.data, `document_${documentId}.${meta.ext}`);
 };
 
-/**
- * AI-learned correction suggestions for a document type.
- */
+
 export const getLearningSuggestions = async (documentType) => {
   const response = await api.get(`/learning/suggestions/${documentType}`);
   return response.data;

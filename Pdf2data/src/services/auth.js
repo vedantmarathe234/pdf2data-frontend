@@ -1,4 +1,4 @@
-import { API_BASE_URL } from "./api";
+import api, { API_BASE_URL } from "./api"; // 1. Imported 'api' instance
 
 const BASE_URL = `${API_BASE_URL}/auth`;
 
@@ -38,8 +38,6 @@ export const loginUser = async (email, password) => {
 
   const data = await response.json();
 
-  // Persist session — email isn't returned by the backend, so we keep
-  // what the user typed to display it in the UI (Topbar / Settings).
   localStorage.setItem("token", data.token);
   localStorage.setItem("username", data.username);
   localStorage.setItem("role", data.role);
@@ -64,4 +62,41 @@ export const getCurrentUser = () => {
     role: localStorage.getItem("role") || "ROLE_USER",
     token,
   };
+};
+
+
+export const changePassword = async (currentPassword, newPassword) => {
+  const response = await api.put("/auth/change-password", {
+    currentPassword,
+    newPassword,
+  });
+  return response.data;
+};
+
+export const changeEmail = async (newEmail, password) => {
+  const response = await api.put("/auth/change-email", {
+    newEmail,
+    password,
+  });
+  return response.data;
+};
+
+export const updateProfile = async (username, profilePicture) => {
+  const response = await api.put("/auth/profile", {
+    username,
+    profilePicture,
+  });
+  return response.data;
+};
+
+export const uploadAvatar = async (file) => {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const response = await api.post("/auth/profile/avatar", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+  return response.data;
 };

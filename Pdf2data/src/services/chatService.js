@@ -1,27 +1,23 @@
 import api from "./api";
 
-/** Sidebar / History list of all chat sessions for the logged-in user */
 export const getSessions = async () => {
   const response = await api.get("/chat/sessions");
-  return response.data; // ChatSessionResponse[]
+  return response.data; 
 };
 
-/** Full detail for one session: metadata + linked documents + messages */
 export const getSessionDetails = async (sessionId) => {
   const response = await api.get(`/chat/session/${sessionId}`);
-  return response.data; // ChatSessionDetailsResponse
+  return response.data; 
 };
 
-/** Ask the AI a question inside a chat session */
 export const askQuestion = async (chatSessionId, message) => {
   const response = await api.post("/chat/ask", { chatSessionId, message });
-  return response.data; // { chatSessionId, reply }
+  return response.data; 
 };
 
-/** Raw message history for a session */
 export const getChatHistory = async (chatSessionId) => {
   const response = await api.get(`/chat/history/${chatSessionId}`);
-  return response.data; // ChatHistory[]
+  return response.data; 
 };
 
 export const renameSession = async (sessionId, title) => {

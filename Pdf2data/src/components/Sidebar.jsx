@@ -1,12 +1,14 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import {
+  HiOutlinePlusCircle,
   HiOutlineHome,
   HiOutlineCollection,
   HiOutlineClock,
   HiOutlineCog,
   HiOutlineLogout,
+  HiX,
 } from "react-icons/hi";
-import logo from "../assets/logo.png";
+import logo from "../assets/logo2.png";
 import { useAuth } from "../context/AuthContext";
 
 const menus = [
@@ -16,79 +18,141 @@ const menus = [
   { name: "Settings", icon: HiOutlineCog, path: "/settings" },
 ];
 
-export default function Sidebar() {
+export default function Sidebar({ mobileOpen, setMobileOpen }) {
   const navigate = useNavigate();
   const location = useLocation();
   const { user, logout } = useAuth();
 
   const isPathActive = (path) => {
-    if (path === "/dashboard") {
+    if (path === "/history") {
       return (
-        location.pathname === "/dashboard" ||
+        location.pathname === "/history" ||
         location.pathname.startsWith("/chat/")
       );
+    }
+    if (path === "/dashboard") {
+      return location.pathname === "/dashboard";
     }
     return location.pathname === path;
   };
 
+  const handleNavigate = (path) => {
+    navigate(path);
+    if (setMobileOpen) setMobileOpen(false);
+  };
+
+  const handleNewExtraction = () => {
+    localStorage.removeItem("pdf2data_active_result");
+    window.dispatchEvent(new Event("new-extraction-triggered"));
+    handleNavigate("/dashboard");
+  };
+
   return (
-    <aside className="w-[280px] border-r border-gray-100 dark:border-slate-800 bg-white dark:bg-slate-900 flex flex-col h-screen transition-colors">
-      <div className="px-8 py-8 flex items-center gap-3 shrink-0">
-        <img
-          src={logo}
-          alt="Logo"
-          className="w-10 h-10 object-contain flex-shrink-0"
+    <>
+      {mobileOpen && (
+        <div
+          onClick={() => setMobileOpen(false)}
+          className="fixed inset-0 bg-black/60 z-40 lg:hidden backdrop-blur-xs transition-opacity"
         />
-        <h1 className="text-[28px] font-bold tracking-tight whitespace-nowrap dark:text-white">
-          PDF<span className="text-[#6139ff]">2DATA</span>
-        </h1>
-      </div>
+      )}
 
-      <div className="px-4 flex-1 space-y-1 mt-2">
-        {menus.map((item, index) => {
-          const Icon = item.icon;
-          const isActive = isPathActive(item.path);
-
-          return (
-            <button
-              key={index}
-              onClick={() => navigate(item.path)}
-              className={`w-full flex items-center gap-4 px-4 py-3 rounded-xl transition-all text-sm font-medium
-                ${
-                  isActive
-                    ? "bg-gradient-to-r from-[#6139ff] to-[#805af5] text-white shadow-md shadow-indigo-100/50"
-                    : "text-gray-600 dark:text-slate-400 hover:text-[#6139ff] dark:hover:text-indigo-400 hover:bg-indigo-50 dark:hover:bg-slate-800"
-                }`}
-            >
-              <Icon size={20} className={isActive ? "text-white" : "text-gray-400"} />
-              <span>{item.name}</span>
-            </button>
-          );
-        })}
-      </div>
-
-      <div className="px-4 pb-6 pt-2 shrink-0 border-t border-gray-100 dark:border-slate-800">
-        <div className="flex items-center gap-3 px-2 pt-4">
-          <div className="w-9 h-9 rounded-full bg-[#6139ff] flex items-center justify-center text-white font-bold text-sm shrink-0">
-            {(user?.username || "?").charAt(0).toUpperCase()}
+      <aside
+        className={`fixed lg:static top-0 left-0 z-50 h-screen w-[260px] border-r border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-[#121215] flex flex-col transition-transform duration-300 ease-in-out shrink-0 ${
+          mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+        }`}
+      >
+        <div className="px-5 py-4 flex items-center justify-between shrink-0 border-b border-zinc-100 dark:border-zinc-800/60">
+          <div className="flex items-center gap-3.5 min-w-0">
+            <div className="w-16 h-16 flex items-center justify-center shrink-0 overflow-hidden">
+              <img
+                src={logo}
+                alt="PDF2DATA Logo"
+                style={{
+                  width: "68px",
+                  height: "68px",
+                  minWidth: "68px",
+                  minHeight: "68px",
+                }}
+                className="object-contain scale-135 dark:invert transition-all"
+              />
+            </div>
+            <h1 className="text-xl font-extrabold tracking-tight whitespace-nowrap text-zinc-900 dark:text-white">
+              PDF2DATA
+            </h1>
           </div>
-          <div className="min-w-0 flex-1">
-            <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">
-              {user?.username || "Guest"}
-            </p>
-            <p className="text-xs text-gray-500 dark:text-slate-400 truncate">
-              {user?.email || (user?.role === "ROLE_ADMIN" ? "Administrator" : "User")}
-            </p>
-          </div>
+
           <button
-            onClick={logout}
-            title="Log out"
-            className="p-2 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition"
+            onClick={() => setMobileOpen(false)}
+            className="lg:hidden p-1.5 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 rounded-lg cursor-pointer"
           >
-            <HiOutlineLogout size={18} />
+            <HiX size={20} />
           </button>
         </div>
-      </div>
-    </aside>
+
+        <div className="px-3 flex-1 space-y-2 mt-4">
+          <button
+            onClick={handleNewExtraction}
+            className="w-full flex items-center gap-3.5 px-3.5 py-2.5 rounded-3xl border border-zinc-200 dark:border-zinc-800 text-zinc-800 dark:text-zinc-200 text-sm font-bold bg-transparent hover:bg-zinc-900 hover:text-white dark:hover:bg-zinc-100 dark:hover:text-zinc-900 transition-all cursor-pointer shadow-xs mb-2"
+          >
+            <HiOutlinePlusCircle size={19} />
+            <span>New Extraction</span>
+          </button>
+
+          {menus.map((item, index) => {
+            const Icon = item.icon;
+            const isActive = isPathActive(item.path);
+
+            return (
+              <button
+                key={index}
+                onClick={() => handleNavigate(item.path)}
+                className={`w-full flex items-center gap-3.5 px-3.5 py-2.5 rounded-3xl transition-all text-sm font-semibold
+                  ${
+                    isActive
+                      ? "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 shadow-xs"
+                      : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100/80 dark:hover:bg-zinc-800"
+                  }`}
+              >
+                <Icon
+                  size={18}
+                  className={
+                    isActive
+                      ? "text-white dark:text-zinc-900"
+                      : "text-zinc-400 dark:text-zinc-500"
+                  }
+                />
+                <span>{item.name}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        <div className="px-3 pb-5 pt-2 shrink-0 border-t border-zinc-100 dark:border-zinc-800/80">
+          <div className="flex items-center gap-3 p-2 rounded-2xl bg-zinc-50 dark:bg-[#09090b] border border-zinc-200/60 dark:border-zinc-800/80">
+            <div className="w-8 h-8 rounded-full bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 font-bold text-xs flex items-center justify-center shrink-0">
+              {(user?.username || "?").charAt(0).toUpperCase()}
+            </div>
+
+            <div className="min-w-0 flex-1">
+              <p className="text-xs font-bold text-zinc-900 dark:text-white truncate">
+                {user?.username || "Guest"}
+              </p>
+              <p className="text-[11px] font-medium text-zinc-400 dark:text-zinc-500 truncate">
+                {user?.email ||
+                  (user?.role === "ROLE_ADMIN" ? "Administrator" : "User")}
+              </p>
+            </div>
+
+            <button
+              onClick={logout}
+              title="Log out"
+              className="p-1.5 rounded-xl text-zinc-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition"
+            >
+              <HiOutlineLogout size={16} />
+            </button>
+          </div>
+        </div>
+      </aside>
+    </>
   );
 }

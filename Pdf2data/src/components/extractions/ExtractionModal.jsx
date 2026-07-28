@@ -1,141 +1,155 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
+import { HiX, HiOutlineDownload, HiOutlineDocumentText } from "react-icons/hi";
 import {
-    getExtraction,
-    downloadJson,
-    downloadCsv,
-    downloadExcel,
-    downloadSql,
+  getExtraction,
+  downloadJson,
+  downloadCsv,
+  downloadExcel,
+  downloadSql,
 } from "../../services/extractionService";
 
 import "./ExtractionModal.css";
 
+const formatKey = (key) => {
+  if (!key) return "";
+  return key
+    .replace(/^V_ed$/i, "V.ed")
+    .replace(/^I_T_$/i, "I.T.")
+    .replace(/^G_K_$/i, "G.K.")
+    .replace(/_/g, " ");
+};
+
 export default function ExtractionModal({ id, onClose }) {
+  const [data, setData] = useState(null);
 
-    const [data, setData] = useState(null);
-    const [view, setView] = useState("form");
+  useEffect(() => {
+    if (id) {
+      loadExtraction();
+    }
+  }, [id]);
 
-    useEffect(() => {
-        loadExtraction();
-    }, [id]);
+  const loadExtraction = async () => {
+    try {
+      const result = await getExtraction(id);
 
-    const loadExtraction = async () => {
+      let fields = result.parsedFields || result.data;
+      if (!fields && result.rawJsonData) {
         try {
-            const result = await getExtraction(id);
-            setData(result);
-        } catch (err) {
-            console.error(err);
+          fields =
+            typeof result.rawJsonData === "string"
+              ? JSON.parse(result.rawJsonData)
+              : result.rawJsonData;
+        } catch (e) {
+          console.error("Failed to parse rawJsonData:", e);
         }
-    };
+      }
 
-    if (!data) {
-        return (
-            <div className="modal-overlay">
-                <div className="modal">
-                    <h3>Loading...</h3>
-                </div>
-            </div>
-        );
+      setData({
+        fileName: result.fileName || result.title || "Extracted Document",
+        parsedFields: fields || {},
+      });
+    } catch (err) {
+      console.error("Failed to load extraction details:", err);
+      setData({
+        fileName: "Error Loading Document",
+        parsedFields: {
+          error: "Failed to fetch document details from server.",
+        },
+      });
+    }
+  };
+
+  const renderValue = (val) => {
+    if (val === null || val === undefined || val === "") return "—";
+
+    if (
+      typeof val === "string" &&
+      val.trim().startsWith("{") &&
+      val.trim().endsWith("}")
+    ) {
+      try {
+        return renderValue(JSON.parse(val));
+      } catch (e) {}
     }
 
-    return (
-        <div className="modal-overlay" onClick={onClose}>
+    if (Array.isArray(val)) {
+      return (
+        <ul className="simple-list">
+          {val.map((item, idx) => (
+            <li key={idx}>{renderValue(item)}</li>
+          ))}
+        </ul>
+      );
+    }
 
-            <div
-                className="modal"
-                onClick={(e) => e.stopPropagation()}
-            >
-
-                <div className="modal-header">
-
-                    <h2>{data.fileName}</h2>
-
-                    <button
-                        className="close-btn"
-                        onClick={onClose}
-                    >
-                        ✕
-                    </button>
-
-                </div>
-
-                <div className="tab-buttons">
-
-                    <button
-                        className={view === "form" ? "active" : ""}
-                        onClick={() => setView("form")}
-                    >
-                        Form View
-                    </button>
-
-                    <button
-                        className={view === "json" ? "active" : ""}
-                        onClick={() => setView("json")}
-                    >
-                        JSON View
-                    </button>
-
-                </div>
-
-                <div className="modal-body">
-
-                    {view === "form" ? (
-
-                        Object.entries(data.parsedFields || {}).map(
-                            ([key, value]) => (
-
-                                <div
-                                    key={key}
-                                    className="field-row"
-                                >
-                                    <strong>{key}</strong>
-
-                                    <span>
-                                        {typeof value === "object"
-                                            ? JSON.stringify(value, null, 2)
-                                            : String(value)}
-                                    </span>
-
-                                </div>
-
-                            )
-                        )
-
-                    ) : (
-
-                        <pre className="json-view">
-                            {JSON.stringify(
-                                data.parsedFields,
-                                null,
-                                2
-                            )}
-                        </pre>
-
-                    )}
-
-                </div>
-
-                <div className="download-buttons">
-
-                    <button onClick={() => downloadJson(id)}>
-                        JSON
-                    </button>
-
-                    <button onClick={() => downloadCsv(id)}>
-                        CSV
-                    </button>
-
-                    <button onClick={() => downloadExcel(id)}>
-                        Excel
-                    </button>
-
-                    <button onClick={() => downloadSql(id)}>
-                        SQL
-                    </button>
-
-                </div>
-
+    if (typeof val === "object") {
+      return (
+        <div className="simple-object">
+          {Object.entries(val).map(([k, v]) => (
+            <div key={k} className="simple-object-row">
+              <span className="key-label">{formatKey(k)}:</span>
+              <span className="val-content">{renderValue(v)}</span>
             </div>
-
+          ))}
         </div>
+      );
+    }
+
+    return String(val);
+  };
+
+  if (!data) {
+    return (
+      <div className="modal-overlay">
+        <div className="modal loading-modal">
+          <div className="loading-state">Loading extraction details...</div>
+        </div>
+      </div>
     );
+  }
+
+  return (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal" onClick={(e) => e.stopPropagation()}>
+        {/* Header */}
+        <div className="modal-header">
+          <div className="modal-header-title">
+            <div className="doc-icon-badge">
+              <HiOutlineDocumentText size={20} />
+            </div>
+            <div>
+              <h2>{data.fileName}</h2>
+              <p className="modal-subtitle">Extracted Data Details</p>
+            </div>
+          </div>
+          <button className="close-btn" onClick={onClose} title="Close">
+            <HiX size={18} />
+          </button>
+        </div>
+
+        <div className="modal-body">
+          {Object.entries(data.parsedFields || {}).map(([key, value]) => (
+            <div key={key} className="simple-row">
+              <div className="main-key">{formatKey(key)}</div>
+              <div className="main-val">{renderValue(value)}</div>
+            </div>
+          ))}
+        </div>
+
+        <div className="download-footer">
+          <div className="download-label">
+            <HiOutlineDownload size={16} />
+            <span>Download As:</span>
+          </div>
+
+          <div className="download-buttons">
+            <button onClick={() => downloadJson(id)}>JSON</button>
+            <button onClick={() => downloadCsv(id)}>CSV</button>
+            <button onClick={() => downloadExcel(id)}>EXCEL</button>
+            <button onClick={() => downloadSql(id)}>SQL</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
 }
