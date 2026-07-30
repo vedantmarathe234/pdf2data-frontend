@@ -35,18 +35,20 @@ export default function AdminSidebar({ mobileOpen, setMobileOpen }) {
       {mobileOpen && (
         <div
           onClick={() => setMobileOpen(false)}
-          className="fixed inset-0 bg-black/70 z-40 lg:hidden backdrop-blur-xs transition-opacity"
+          className="fixed inset-0 bg-black/60 z-40 lg:hidden backdrop-blur-xs transition-opacity"
         />
       )}
 
-      {/* Sidebar Container */}
+      {/* Floating Card Sidebar Container */}
       <aside
-        className={`fixed lg:static top-0 left-0 z-50 h-screen w-[260px] border-r border-indigo-950/80 bg-[#121222] flex flex-col transition-transform duration-300 ease-in-out shrink-0 ${
-          mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+        className={`fixed lg:static top-4 left-4 lg:top-0 lg:left-0 lg:my-4 lg:ml-4 z-50 h-[calc(100vh-2rem)] w-[260px] rounded-3xl border border-gray-200/80 dark:border-[#332C57] bg-white dark:bg-[#1E1A3B] shadow-xl shadow-gray-300/40 dark:shadow-black/50 flex flex-col transition-transform duration-300 ease-in-out shrink-0 overflow-hidden ${
+          mobileOpen
+            ? "translate-x-0"
+            : "-translate-x-[calc(100%+1rem)] lg:translate-x-0"
         }`}
       >
         {/* Header Section */}
-        <div className="px-5 py-3.5 flex items-center justify-between shrink-0 border-b border-indigo-950/60">
+        <div className="px-5 py-3.5 flex items-center justify-between shrink-0 border-b border-gray-100 dark:border-[#332C57]/60">
           <div className="flex items-center justify-center min-w-0 flex-1">
             <img
               src={logo}
@@ -57,15 +59,15 @@ export default function AdminSidebar({ mobileOpen, setMobileOpen }) {
 
           <button
             onClick={() => setMobileOpen(false)}
-            className="lg:hidden p-1.5 text-indigo-400 hover:text-white rounded-lg cursor-pointer ml-2"
+            className="lg:hidden p-1.5 text-gray-400 hover:text-gray-700 dark:hover:text-[#E9E7F5] rounded-lg cursor-pointer ml-2"
           >
             <HiX size={20} />
           </button>
         </div>
 
         {/* Navigation Items */}
-        <div className="px-3 flex-1 space-y-1.5 mt-4 overflow-y-auto">
-          <p className="px-3.5 text-[10px] font-bold text-indigo-400/50 uppercase tracking-wider mb-2">
+        <div className="px-3 flex-1 space-y-2 mt-4 overflow-y-auto">
+          <p className="px-3.5 text-[10px] font-bold text-gray-400 dark:text-[#A5A1C4]/60 uppercase tracking-wider mb-2">
             System Control
           </p>
 
@@ -77,16 +79,18 @@ export default function AdminSidebar({ mobileOpen, setMobileOpen }) {
               <button
                 key={index}
                 onClick={() => handleNavigate(item.path)}
-                className={`w-full flex items-center gap-3.5 px-3.5 py-2.5 rounded-2xl transition-all text-sm font-semibold cursor-pointer ${
+                className={`w-full flex items-center gap-3.5 px-3.5 py-2.5 rounded-3xl transition-all text-sm font-semibold cursor-pointer ${
                   isActive
-                    ? "bg-gradient-to-r from-purple-600 to-indigo-600 text-white shadow-lg shadow-purple-600/25"
-                    : "text-indigo-300/70 hover:text-white hover:bg-[#18182f]"
+                    ? "bg-gradient-to-r from-[#8B5CF6] to-[#EC4899] text-white shadow-xs"
+                    : "text-gray-600 dark:text-[#A5A1C4] hover:text-gray-900 dark:hover:text-white hover:bg-gray-100/80 dark:hover:bg-[#251F47]"
                 }`}
               >
                 <Icon
                   size={18}
                   className={
-                    isActive ? "text-white" : "text-indigo-400/60"
+                    isActive
+                      ? "text-white"
+                      : "text-gray-400 dark:text-[#A5A1C4]/60"
                   }
                 />
                 <span>{item.name}</span>
@@ -96,17 +100,17 @@ export default function AdminSidebar({ mobileOpen, setMobileOpen }) {
         </div>
 
         {/* User Profile Footer */}
-        <div className="px-3 pb-5 pt-2 shrink-0 border-t border-indigo-950/80">
-          <div className="flex items-center gap-3 p-2.5 rounded-2xl bg-[#0b0b14] border border-indigo-950/80">
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-500 text-white font-bold text-xs flex items-center justify-center shrink-0 shadow-md">
+        <div className="px-3 pb-5 pt-2 shrink-0 border-t border-gray-100 dark:border-[#332C57]/80">
+          <div className="flex items-center gap-3 p-2 rounded-2xl bg-gray-50 dark:bg-[#171331] border border-gray-200/60 dark:border-[#332C57]/80">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#8B5CF6] to-[#EC4899] text-white font-bold text-xs flex items-center justify-center shrink-0">
               {(user?.username || "A").charAt(0).toUpperCase()}
             </div>
 
             <div className="min-w-0 flex-1">
-              <p className="text-xs font-bold text-white truncate">
+              <p className="text-xs font-bold text-gray-900 dark:text-white truncate">
                 {user?.username || "Admin"}
               </p>
-              <p className="text-[10px] font-medium text-purple-400 truncate">
+              <p className="text-[11px] font-medium text-gray-400 dark:text-[#A5A1C4]/60 truncate">
                 Administrator
               </p>
             </div>
@@ -114,7 +118,7 @@ export default function AdminSidebar({ mobileOpen, setMobileOpen }) {
             <button
               onClick={logout}
               title="Log out"
-              className="p-1.5 rounded-xl text-indigo-400/60 hover:text-red-400 hover:bg-red-950/30 transition cursor-pointer"
+              className="p-1.5 rounded-xl text-gray-400 dark:text-[#A5A1C4]/60 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition cursor-pointer"
             >
               <HiOutlineLogout size={16} />
             </button>

@@ -59,108 +59,109 @@ export default function AdminExtractions() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0b0b14] text-white p-6 sm:p-8 space-y-6">
-      <div className="max-w-7xl mx-auto space-y-6">
+    <div>
+      <div className="max-w-7xl w-full mx-auto flex flex-col flex-1 space-y-4">
         
         {/* Header and Search Bar */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-2 border-b border-indigo-950/60">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-3 border-b border-gray-200 dark:border-[#332C57] shrink-0">
           <div>
-            <h1 className="text-3xl font-extrabold tracking-tight text-white">
+            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white">
               Extracted Documents
             </h1>
-            <p className="text-xs text-indigo-300/70 mt-1">
+            <p className="text-xs text-gray-500 dark:text-[#A5A1C4] mt-0.5">
               Audit history of all processed PDFs across the platform
             </p>
           </div>
 
           <div className="relative w-full sm:w-80">
-            <HiOutlineSearch size={18} className="absolute left-3.5 top-3 text-indigo-400/60" />
+            <HiOutlineSearch size={18} className="absolute left-3.5 top-2.5 text-gray-400 dark:text-[#A5A1C4]/60" />
             <input
               type="text"
               placeholder="Search by document or username..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="w-full pl-10 pr-4 py-2.5 bg-[#121222] border border-indigo-950 rounded-2xl text-xs text-white placeholder-indigo-400/40 outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition"
+              className="w-full pl-10 pr-4 py-2 bg-white dark:bg-[#1E1A3B] border border-gray-200 dark:border-[#332C57] rounded-2xl text-xs text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-[#A5A1C4]/40 outline-none focus:border-[#8B5CF6] focus:ring-2 focus:ring-[#8B5CF6]/20 transition shadow-xs"
             />
           </div>
         </div>
 
         {/* Error State */}
         {error && (
-          <div className="p-4 bg-red-950/50 border border-red-900/80 text-red-400 text-xs font-medium rounded-2xl">
+          <div className="p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/60 text-red-600 dark:text-red-400 text-xs font-medium rounded-2xl shadow-xs shrink-0">
             {error}
           </div>
         )}
 
-        {/* Table Container */}
-        <div className="bg-[#121222] border border-indigo-950/80 rounded-3xl overflow-hidden shadow-2xl">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-xs text-indigo-200/80">
-              <thead className="bg-[#17172c] uppercase tracking-wider text-[10px] font-bold text-indigo-300/60 border-b border-indigo-950">
+        {/* Fixed Table Container */}
+        <div className="bg-white dark:bg-[#1E1A3B] border border-gray-200 dark:border-[#332C57] rounded-3xl shadow-xl shadow-gray-200/50 dark:shadow-none flex flex-col flex-1 overflow-hidden">
+          
+          <div className="flex-1 overflow-hidden flex flex-col">
+            <table className="w-full text-left text-xs text-gray-600 dark:text-[#E9E7F5]">
+              <thead className="bg-gray-50 dark:bg-[#251F47] uppercase tracking-wider text-[10px] font-bold text-gray-500 dark:text-[#A5A1C4] border-b border-gray-200 dark:border-[#332C57] sticky top-0">
                 <tr>
-                  <th className="py-4 px-6">Document Info</th>
-                  <th className="py-4 px-6">Owner / User</th>
-                  <th className="py-4 px-6">Processed On</th>
-                  <th className="py-4 px-6">Status</th>
-                  <th className="py-4 px-6 text-right">Action</th>
+                  <th className="py-3 px-6">Document Info</th>
+                  <th className="py-3 px-6">Owner / User</th>
+                  <th className="py-3 px-6">Processed On</th>
+                  <th className="py-3 px-6">Status</th>
+                  <th className="py-3 px-6 text-right">Action</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-indigo-950/60">
+              <tbody className="divide-y divide-gray-100 dark:divide-[#332C57]/60">
                 {loading ? (
                   <tr>
-                    <td colSpan="5" className="py-12 text-center text-indigo-300/50">
+                    <td colSpan="5" className="py-12 text-center text-gray-400 dark:text-[#A5A1C4]/50">
                       Loading records...
                     </td>
                   </tr>
                 ) : currentItems.length === 0 ? (
                   <tr>
-                    <td colSpan="5" className="py-12 text-center text-indigo-300/50">
+                    <td colSpan="5" className="py-12 text-center text-gray-400 dark:text-[#A5A1C4]/50">
                       No extractions found.
                     </td>
                   </tr>
                 ) : (
                   currentItems.map((row) => (
-                    <tr key={row.documentId || row.id} className="hover:bg-purple-950/20 transition duration-150">
-                      <td className="py-4 px-6">
+                    <tr key={row.documentId || row.id} className="hover:bg-purple-50/50 dark:hover:bg-[#251F47]/50 transition duration-150">
+                      <td className="py-2.5 px-6">
                         <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-xl bg-purple-600/10 border border-purple-500/20 text-purple-400 flex items-center justify-center shrink-0 font-bold">
-                            <HiOutlineDocumentText size={18} />
+                          <div className="w-8 h-8 rounded-xl bg-purple-100 dark:bg-[#251F47] border border-purple-200 dark:border-[#3D3868] text-[#8B5CF6] flex items-center justify-center shrink-0 font-bold">
+                            <HiOutlineDocumentText size={16} />
                           </div>
-                          <div>
-                            <p className="font-bold text-white">
+                          <div className="truncate max-w-xs">
+                            <p className="font-bold text-gray-900 dark:text-white truncate">
                               {row.fileName}
                             </p>
-                            <p className="text-[11px] text-indigo-300/50">
+                            <p className="text-[10px] text-gray-400 dark:text-[#A5A1C4]/60 truncate">
                               ID: #{row.documentId || row.id} {row.fileSize ? `• ${(row.fileSize / 1024).toFixed(1)} KB` : ""}
                             </p>
                           </div>
                         </div>
                       </td>
-                      <td className="py-4 px-6">
+                      <td className="py-2.5 px-6">
                         <div className="flex items-center gap-2.5">
-                          <div className="w-7 h-7 rounded-full bg-indigo-950 border border-indigo-900 flex items-center justify-center text-indigo-300 font-bold text-[10px]">
-                            <HiOutlineUser size={14} />
+                          <div className="w-7 h-7 rounded-full bg-gray-100 dark:bg-[#251F47] border border-gray-200 dark:border-[#3D3868] flex items-center justify-center text-[#8B5CF6] font-bold text-[10px] shrink-0">
+                            <HiOutlineUser size={13} />
                           </div>
-                          <div>
-                            <p className="font-bold text-white">
+                          <div className="truncate max-w-xs">
+                            <p className="font-bold text-gray-900 dark:text-white truncate">
                               {row.username}
                             </p>
-                            <p className="text-[11px] text-indigo-300/50">{row.userEmail}</p>
+                            <p className="text-[10px] text-gray-400 dark:text-[#A5A1C4]/60 truncate">{row.userEmail}</p>
                           </div>
                         </div>
                       </td>
-                      <td className="py-4 px-6 text-indigo-300/70">
+                      <td className="py-2.5 px-6 text-gray-500 dark:text-[#A5A1C4] whitespace-nowrap">
                         {row.timestamp ? new Date(row.timestamp).toLocaleString() : "N/A"}
                       </td>
-                      <td className="py-4 px-6">
-                        <span className="px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-950/60 border border-emerald-800/60 text-emerald-400 uppercase tracking-wider">
+                      <td className="py-2.5 px-6 whitespace-nowrap">
+                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 dark:bg-emerald-950/60 border border-emerald-200 dark:border-emerald-800/60 text-emerald-700 dark:text-emerald-400 uppercase tracking-wider">
                           {row.status || "SUCCESS"}
                         </span>
                       </td>
-                      <td className="py-4 px-6 text-right">
+                      <td className="py-2.5 px-6 text-right whitespace-nowrap">
                         <button
                           onClick={() => downloadExtractionFile(row.documentId || row.id, row.fileName)}
-                          className="px-3 py-1.5 rounded-xl bg-purple-600/20 border border-purple-500/30 hover:bg-purple-600 hover:text-white text-purple-300 font-semibold text-xs transition inline-flex items-center gap-1.5 cursor-pointer shadow-md"
+                          className="px-2.5 py-1 rounded-xl bg-purple-50 dark:bg-[#251F47] border border-purple-200 dark:border-[#3D3868] hover:bg-[#8B5CF6] hover:text-white dark:hover:bg-[#8B5CF6] text-[#8B5CF6] dark:text-[#C084FC] font-semibold text-xs transition inline-flex items-center gap-1.5 cursor-pointer shadow-xs"
                         >
                           <HiOutlineDownload size={14} />
                           Download
@@ -173,10 +174,10 @@ export default function AdminExtractions() {
             </table>
           </div>
 
-          {/* Pagination Footer */}
+          {/* Fixed Footer Pagination */}
           {!loading && filtered.length > 0 && (
-            <div className="px-6 py-4 border-t border-indigo-950/80 flex items-center justify-end gap-6 bg-[#0f0f1d]">
-              <p className="text-xs text-indigo-300/60">
+            <div className="px-6 py-3 border-t border-gray-100 dark:border-[#332C57] flex items-center justify-end gap-6 bg-gray-50/50 dark:bg-[#1E1A3B] shrink-0 mt-auto">
+              <p className="text-xs text-gray-500 dark:text-[#A5A1C4]">
                 Showing {filtered.length === 0 ? 0 : `${startIndex + 1}-${endIndex}`} of {filtered.length} items
               </p>
 
@@ -184,7 +185,7 @@ export default function AdminExtractions() {
                 <button
                   onClick={() => handlePageChange(currentPage - 1)}
                   disabled={currentPage === 1}
-                  className="p-1.5 text-indigo-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition cursor-pointer"
+                  className="p-1.5 text-gray-400 dark:text-[#A5A1C4] hover:text-gray-900 dark:hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition cursor-pointer"
                 >
                   <HiChevronLeft size={16} />
                 </button>
@@ -195,8 +196,8 @@ export default function AdminExtractions() {
                     onClick={() => handlePageChange(page)}
                     className={`w-7 h-7 rounded-lg text-xs font-semibold transition cursor-pointer ${
                       currentPage === page
-                        ? "border border-purple-500 text-purple-300 font-bold bg-purple-600/20 shadow-xs"
-                        : "text-indigo-300/60 hover:text-white"
+                        ? "border border-[#8B5CF6] text-[#8B5CF6] dark:text-[#C084FC] font-bold bg-purple-50 dark:bg-[#251F47]"
+                        : "text-gray-500 dark:text-[#A5A1C4] hover:text-gray-900 dark:hover:text-white"
                     }`}
                   >
                     {page}
@@ -206,7 +207,7 @@ export default function AdminExtractions() {
                 <button
                   onClick={() => handlePageChange(currentPage + 1)}
                   disabled={currentPage === totalPages}
-                  className="p-1.5 text-indigo-400 hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition cursor-pointer"
+                  className="p-1.5 text-gray-400 dark:text-[#A5A1C4] hover:text-gray-900 dark:hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition cursor-pointer"
                 >
                   <HiChevronRight size={16} />
                 </button>
@@ -216,13 +217,13 @@ export default function AdminExtractions() {
                 <select
                   value={itemsPerPage}
                   onChange={(e) => setItemsPerPage(Number(e.target.value))}
-                  className="appearance-none pl-3 pr-8 py-1.5 bg-[#18182f] border border-indigo-950 rounded-xl text-xs font-medium text-indigo-200 outline-none focus:border-purple-500 cursor-pointer"
+                  className="appearance-none pl-3 pr-8 py-1 bg-white dark:bg-[#251F47] border border-gray-200 dark:border-[#332C57] rounded-xl text-xs font-medium text-gray-700 dark:text-[#E9E7F5] outline-none focus:border-[#8B5CF6] cursor-pointer"
                 >
                   <option value={10}>10 / page</option>
                   <option value={20}>20 / page</option>
                   <option value={50}>50 / page</option>
                 </select>
-                <HiChevronDown size={14} className="absolute right-2.5 top-2.5 text-indigo-400/60 pointer-events-none" />
+                <HiChevronDown size={14} className="absolute right-2.5 top-2 text-gray-400 dark:text-[#A5A1C4]/60 pointer-events-none" />
               </div>
 
             </div>
