@@ -9,6 +9,7 @@ import {
 } from "react-icons/hi";
 import { useState } from "react";
 import { registerUser } from "../services/auth";
+import logo from "../assets/pdf2data.png"; 
 
 export default function Register() {
   const navigate = useNavigate();
@@ -54,13 +55,13 @@ export default function Register() {
           <div className="absolute inset-0 opacity-20 bg-[radial-gradient(#9333ea_1px,transparent_1px)] [background-size:16px_16px]"></div>
           <div className="absolute -left-10 -top-10 w-96 h-96 bg-purple-600/20 rounded-full blur-3xl pointer-events-none"></div>
 
-          <div className="relative z-10 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-500 flex items-center justify-center text-white font-bold shadow-lg shadow-purple-500/30">
-              PDF
-            </div>
-            <div className="text-white text-3xl font-extrabold tracking-wider">
-              PDF2DATA
-            </div>
+          {/* Top Logo Section (Updated) */}
+          <div className="relative z-10 flex items-center">
+            <img
+              src={logo}
+              alt="PDF2DATA Logo"
+              className="h-30 w-auto max-w-[200px] object-contain"
+            />
           </div>
 
           <div className="relative z-10 text-white my-auto py-6">
@@ -169,7 +170,7 @@ export default function Register() {
                   />
                   <button
                     type="button"
-                    className="absolute right-4 top-3 text-indigo-400/60 hover:text-white transition"
+                    className="absolute right-4 top-3 text-indigo-400/60 hover:text-white transition cursor-pointer"
                     onClick={() => setShowPassword(!showPassword)}
                   >
                     {showPassword ? <HiEyeOff size={18} /> : <HiEye size={18} />}

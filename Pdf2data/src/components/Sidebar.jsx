@@ -8,7 +8,7 @@ import {
   HiOutlineLogout,
   HiX,
 } from "react-icons/hi";
-import logo from "../assets/logo2.png";
+import logo from "../assets/pdf2data.png";
 import { useAuth } from "../context/AuthContext";
 
 const menus = [
@@ -63,29 +63,19 @@ export default function Sidebar({ mobileOpen, setMobileOpen }) {
             : "-translate-x-[calc(100%+1rem)] lg:translate-x-0"
         }`}
       >
-        <div className="px-5 py-4 flex items-center justify-between shrink-0 border-b border-gray-100 dark:border-[#332C57]/60">
-          <div className="flex items-center gap-3.5 min-w-0">
-            <div className="w-16 h-16 flex items-center justify-center shrink-0 overflow-hidden">
-              <img
-                src={logo}
-                alt="PDF2DATA Logo"
-                style={{
-                  width: "68px",
-                  height: "68px",
-                  minWidth: "68px",
-                  minHeight: "68px",
-                }}
-                className="object-contain scale-135 dark:invert transition-all"
-              />
-            </div>
-            <h1 className="text-xl font-extrabold tracking-tight whitespace-nowrap text-gray-900 dark:text-white">
-              PDF2DATA
-            </h1>
+        {/* Logo Header Section - Fixed */}
+        <div className="px-5 py-3.5 flex items-center justify-between shrink-0 border-b border-gray-100 dark:border-[#332C57]/60">
+          <div className="flex items-center justify-center min-w-0 flex-1">
+            <img
+              src={logo}
+              alt="PDF2DATA Logo"
+              className="h-20 w-auto max-w-[180px] object-contain transition-all"
+            />
           </div>
 
           <button
             onClick={() => setMobileOpen(false)}
-            className="lg:hidden p-1.5 text-gray-400 hover:text-gray-700 dark:hover:text-[#E9E7F5] rounded-lg cursor-pointer"
+            className="lg:hidden p-1.5 text-gray-400 hover:text-gray-700 dark:hover:text-[#E9E7F5] rounded-lg cursor-pointer ml-2"
           >
             <HiX size={20} />
           </button>

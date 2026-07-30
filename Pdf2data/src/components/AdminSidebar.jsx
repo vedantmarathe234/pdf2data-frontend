@@ -6,7 +6,7 @@ import {
   HiOutlineLogout,
   HiX,
 } from "react-icons/hi";
-import logo from "../assets/logo2.png";
+import logo from "../assets/pdf2data.png"; 
 import { useAuth } from "../context/AuthContext";
 
 const adminMenus = [
@@ -46,24 +46,18 @@ export default function AdminSidebar({ mobileOpen, setMobileOpen }) {
         }`}
       >
         {/* Header Section */}
-        <div className="px-5 py-4 flex items-center justify-between shrink-0 border-b border-indigo-950/60">
-          <div className="flex items-center gap-3.5 min-w-0">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-500 flex items-center justify-center text-white font-bold shrink-0 shadow-lg shadow-purple-600/30">
-              PDF
-            </div>
-            <div>
-              <h1 className="text-base font-extrabold tracking-wider whitespace-nowrap text-white">
-                PDF2DATA
-              </h1>
-              <span className="inline-block text-[9px] font-bold text-purple-300 bg-purple-900/40 border border-purple-700/50 px-2 py-0.5 rounded-full uppercase tracking-wider">
-                Admin Console
-              </span>
-            </div>
+        <div className="px-5 py-3.5 flex items-center justify-between shrink-0 border-b border-indigo-950/60">
+          <div className="flex items-center justify-center min-w-0 flex-1">
+            <img
+              src={logo}
+              alt="PDF2DATA Admin Logo"
+              className="h-20 w-auto max-w-[180px] object-contain transition-all"
+            />
           </div>
 
           <button
             onClick={() => setMobileOpen(false)}
-            className="lg:hidden p-1.5 text-indigo-400 hover:text-white rounded-lg cursor-pointer"
+            className="lg:hidden p-1.5 text-indigo-400 hover:text-white rounded-lg cursor-pointer ml-2"
           >
             <HiX size={20} />
           </button>

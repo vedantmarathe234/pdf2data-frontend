@@ -10,6 +10,7 @@ import { useState } from "react";
 import { loginUser } from "../services/auth";
 import { useAuth } from "../context/AuthContext";
 import api from "../services/api";
+import logo from "../assets/pdf2data.png"; 
 
 export default function Login() {
   const navigate = useNavigate();
@@ -72,13 +73,13 @@ export default function Login() {
           <div className="absolute inset-0 opacity-20 bg-[radial-gradient(#9333ea_1px,transparent_1px)] [background-size:16px_16px]"></div>
           <div className="absolute -right-10 -bottom-10 w-96 h-96 bg-purple-600/20 rounded-full blur-3xl pointer-events-none"></div>
 
-          <div className="relative z-10 flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-500 flex items-center justify-center text-white font-bold shadow-lg shadow-purple-500/30">
-              PDF
-            </div>
-            <div className="text-white text-3xl font-extrabold tracking-wider">
-              PDF2DATA
-            </div>
+          {/* Top Logo Section (Fixed) */}
+          <div className="relative z-10 flex items-center">
+            <img
+              src={logo}
+              alt="PDF2DATA Logo"
+              className="h-30 w-auto max-w-[200px] object-contain"
+            />
           </div>
 
           <div className="relative z-10 text-white my-auto py-6">
