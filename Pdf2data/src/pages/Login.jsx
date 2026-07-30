@@ -47,7 +47,6 @@ export default function Login() {
 
     try {
       await api.post("/auth/forgot-password", { email: resetEmail });
-
       setResetMessage({
         type: "success",
         text: "Password reset link has been sent to your email inbox!",
@@ -65,57 +64,76 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-100 dark:bg-[#09090b] flex items-center justify-center p-4">
-      <div className="w-full max-w-6xl lg:h-[720px] bg-white dark:bg-[#121215] border border-zinc-200/80 dark:border-zinc-800 rounded-[30px] shadow-2xl overflow-hidden grid lg:grid-cols-2">
-        <div className="relative p-10 flex flex-col justify-between h-full min-h-[300px] lg:min-h-full">
-          <div
-            className="absolute inset-0 m-4 rounded-[20px]"
-            style={{
-              background:
-                "radial-gradient(circle at 20% 20%,#3f3f46,transparent 30%),radial-gradient(circle at 50% 40%,#18181b,transparent 35%),radial-gradient(circle at 80% 10%,#52525b,transparent 30%),linear-gradient(135deg,#09090b,#18181b,#27272a)",
-            }}
-          ></div>
-          <div className="relative z-10">
-            <div className="text-white text-6xl font-bold">PDF2Data</div>
+    <div className="min-h-screen bg-[#0b0b14] flex items-center justify-center p-4">
+      <div className="w-full max-w-6xl lg:h-[720px] bg-[#121222] border border-indigo-950/50 rounded-[30px] shadow-2xl overflow-hidden grid lg:grid-cols-2">
+        
+        {/* Left Banner Section */}
+        <div className="relative p-10 flex flex-col justify-between h-full min-h-[300px] lg:min-h-full overflow-hidden bg-gradient-to-br from-[#1b153b] via-[#120f24] to-[#0b0b14]">
+          <div className="absolute inset-0 opacity-20 bg-[radial-gradient(#9333ea_1px,transparent_1px)] [background-size:16px_16px]"></div>
+          <div className="absolute -right-10 -bottom-10 w-96 h-96 bg-purple-600/20 rounded-full blur-3xl pointer-events-none"></div>
+
+          <div className="relative z-10 flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-500 flex items-center justify-center text-white font-bold shadow-lg shadow-purple-500/30">
+              PDF
+            </div>
+            <div className="text-white text-3xl font-extrabold tracking-wider">
+              PDF2DATA
+            </div>
           </div>
-          <div className="relative z-10 text-white">
-            <p className="text-lg opacity-80">AI powered extraction</p>
-            <h1 className="mt-4 text-5xl font-bold leading-tight">
+
+          <div className="relative z-10 text-white my-auto py-6">
+            <p className="text-purple-400 text-sm font-semibold tracking-wide uppercase">
+              AI powered extraction
+            </p>
+            <h1 className="mt-2 text-4xl lg:text-5xl font-extrabold leading-tight">
               Extract structured
               <br />
               data from PDFs
             </h1>
-            <p className="mt-8 text-lg opacity-90 max-w-sm">
+            <p className="mt-4 text-sm text-indigo-200/80 max-w-sm leading-relaxed">
               OCR, AI extraction, chat with documents, and export to JSON, CSV,
               Excel & SQL.
             </p>
+
+            {/* Feature Badges */}
+            <div className="flex flex-wrap gap-2.5 mt-6">
+              <span className="px-3 py-1 rounded-lg bg-purple-900/40 border border-purple-700/50 text-purple-300 text-xs font-semibold">JSON</span>
+              <span className="px-3 py-1 rounded-lg bg-teal-900/40 border border-teal-700/50 text-teal-300 text-xs font-semibold">CSV</span>
+              <span className="px-3 py-1 rounded-lg bg-orange-900/40 border border-orange-700/50 text-orange-300 text-xs font-semibold">EXCEL</span>
+              <span className="px-3 py-1 rounded-lg bg-indigo-900/40 border border-indigo-700/50 text-indigo-300 text-xs font-semibold">SQL</span>
+            </div>
+          </div>
+
+          <div className="relative z-10 text-xs text-indigo-300/60">
+            © 2026 PDF2Data. All rights reserved.
           </div>
         </div>
 
-        <div className="p-10 lg:p-10 flex items-center h-full overflow-y-auto">
+        {/* Right Form Section */}
+        <div className="p-8 lg:p-12 flex items-center h-full overflow-y-auto bg-[#121222]">
           <div className="w-full">
-            <h1 className="text-4xl font-bold tracking-tight text-zinc-900 dark:text-white">
+            <h2 className="text-3xl font-bold tracking-tight text-white">
               Welcome Back
-            </h1>
-            <p className="text-zinc-500 dark:text-zinc-400 mt-2 text-sm">
+            </h2>
+            <p className="text-indigo-300/70 mt-1.5 text-xs">
               Sign in to continue using PDF2Data
             </p>
 
             {error && (
-              <div className="mt-4 p-3 bg-red-50 dark:bg-red-950/40 border border-red-200 dark:border-red-900/50 text-red-600 dark:text-red-400 text-sm font-medium rounded-xl">
+              <div className="mt-4 p-3 bg-red-950/50 border border-red-900 text-red-400 text-xs font-medium rounded-xl">
                 {error}
               </div>
             )}
 
-            <form className="mt-8" onSubmit={handleSubmit}>
+            <form className="mt-6 space-y-4" onSubmit={handleSubmit}>
               <div>
-                <label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">
+                <label className="text-xs font-semibold text-indigo-300 uppercase tracking-wider">
                   Email
                 </label>
                 <div className="mt-1.5 relative">
                   <HiOutlineMail
                     size={18}
-                    className="absolute left-4 top-3.5 text-zinc-400"
+                    className="absolute left-4 top-3.5 text-indigo-400/60"
                   />
                   <input
                     type="email"
@@ -123,19 +141,19 @@ export default function Login() {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="example@gmail.com"
-                    className="w-full h-11 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-[#09090b] text-zinc-900 dark:text-white placeholder-zinc-400 pl-11 pr-4 text-sm outline-none hover:border-zinc-400 dark:hover:border-zinc-700 focus:border-zinc-900 dark:focus:border-zinc-100 focus:ring-2 focus:ring-zinc-200 dark:focus:ring-zinc-800 transition"
+                    className="w-full h-11 rounded-xl border border-indigo-950 bg-[#18182f] text-white placeholder-indigo-400/40 pl-11 pr-4 text-sm outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition"
                   />
                 </div>
               </div>
 
-              <div className="mt-4">
-                <label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">
+              <div>
+                <label className="text-xs font-semibold text-indigo-300 uppercase tracking-wider">
                   Password
                 </label>
                 <div className="mt-1.5 relative">
                   <HiOutlineLockClosed
                     size={18}
-                    className="absolute left-4 top-3.5 text-zinc-400"
+                    className="absolute left-4 top-3.5 text-indigo-400/60"
                   />
                   <input
                     type={showPassword ? "text" : "password"}
@@ -143,27 +161,23 @@ export default function Login() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="•••••••••"
-                    className="w-full h-11 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-[#09090b] text-zinc-900 dark:text-white placeholder-zinc-400 pl-11 pr-11 text-sm outline-none hover:border-zinc-400 dark:hover:border-zinc-700 focus:border-zinc-900 dark:focus:border-zinc-100 focus:ring-2 focus:ring-zinc-200 dark:focus:ring-zinc-800 transition"
+                    className="w-full h-11 rounded-xl border border-indigo-950 bg-[#18182f] text-white placeholder-indigo-400/40 pl-11 pr-11 text-sm outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition"
                   />
                   <button
                     type="button"
-                    className="absolute right-4 top-3.5 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 transition cursor-pointer"
+                    className="absolute right-4 top-3.5 text-indigo-400/60 hover:text-white transition cursor-pointer"
                     onClick={() => setShowPassword(!showPassword)}
                   >
-                    {showPassword ? (
-                      <HiEyeOff size={18} />
-                    ) : (
-                      <HiEye size={18} />
-                    )}
+                    {showPassword ? <HiEyeOff size={18} /> : <HiEye size={18} />}
                   </button>
                 </div>
               </div>
 
-              <div className="flex justify-between items-center mt-4 text-xs font-medium">
-                <label className="flex items-center cursor-pointer text-zinc-600 dark:text-zinc-400 select-none">
+              <div className="flex justify-between items-center text-xs font-medium pt-1">
+                <label className="flex items-center cursor-pointer text-indigo-300/80 select-none">
                   <input
                     type="checkbox"
-                    className="rounded border-zinc-300 dark:border-zinc-700 text-zinc-900 focus:ring-zinc-500"
+                    className="rounded border-indigo-900 bg-indigo-950 text-purple-600 focus:ring-purple-500"
                   />
                   <span className="ml-2">Remember me</span>
                 </label>
@@ -174,7 +188,7 @@ export default function Login() {
                     setIsForgotModalOpen(true);
                     setResetMessage({ type: "", text: "" });
                   }}
-                  className="text-zinc-900 dark:text-white font-semibold hover:underline cursor-pointer"
+                  className="text-purple-400 font-semibold hover:underline cursor-pointer"
                 >
                   Forgot password?
                 </button>
@@ -183,25 +197,25 @@ export default function Login() {
               <button
                 type="submit"
                 disabled={loading}
-                className="shadow-md mt-6 w-full h-11 rounded-xl bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 font-semibold text-sm transition-all duration-200 hover:bg-zinc-800 dark:hover:bg-white disabled:bg-zinc-300 dark:disabled:bg-zinc-800 disabled:text-zinc-500 active:scale-[0.99] cursor-pointer"
+                className="mt-2 w-full h-11 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white font-semibold text-sm transition-all duration-200 hover:opacity-90 shadow-lg shadow-purple-600/30 active:scale-[0.99] cursor-pointer"
               >
                 {loading ? "Signing in..." : "Sign In"}
               </button>
             </form>
 
             <div className="my-5 flex items-center">
-              <div className="flex-1 h-px bg-zinc-200 dark:bg-zinc-800" />
-              <p className="mx-3 text-zinc-400 text-xs uppercase tracking-wider font-medium">
+              <div className="flex-1 h-px bg-indigo-950" />
+              <p className="mx-3 text-indigo-400/50 text-[11px] uppercase tracking-wider font-semibold">
                 or register with
               </p>
-              <div className="flex-1 h-px bg-zinc-200 dark:bg-zinc-800" />
+              <div className="flex-1 h-px bg-indigo-950" />
             </div>
 
-            <p className="text-center mt-6 text-sm text-zinc-500 dark:text-zinc-400">
+            <p className="text-center text-xs text-indigo-300/70">
               Don't have an account?
               <Link
                 to="/register"
-                className="ml-1.5 text-zinc-900 dark:text-white font-bold hover:underline"
+                className="ml-1.5 text-purple-400 font-bold hover:underline"
               >
                 Sign Up
               </Link>
@@ -210,22 +224,23 @@ export default function Login() {
         </div>
       </div>
 
+      {/* Forgot Password Modal */}
       {isForgotModalOpen && (
-        <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-[#121215] rounded-3xl p-6 sm:p-8 max-w-md w-full border border-zinc-200 dark:border-zinc-800 shadow-2xl space-y-5">
+        <div className="fixed inset-0 bg-black/70 backdrop-blur-xs z-50 flex items-center justify-center p-4">
+          <div className="bg-[#151528] rounded-3xl p-6 sm:p-8 max-w-md w-full border border-indigo-950 shadow-2xl space-y-5">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-bold text-zinc-900 dark:text-white">
+              <h3 className="text-lg font-bold text-white">
                 Reset Your Password
               </h3>
               <button
                 onClick={() => setIsForgotModalOpen(false)}
-                className="p-1.5 rounded-full text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition cursor-pointer"
+                className="p-1.5 rounded-full text-indigo-400 hover:text-white transition cursor-pointer"
               >
                 <HiX size={20} />
               </button>
             </div>
 
-            <p className="text-xs text-zinc-500 dark:text-zinc-400 leading-relaxed">
+            <p className="text-xs text-indigo-300/70 leading-relaxed">
               Enter your account's registered email address below. We'll send
               you a link to reset your password.
             </p>
@@ -234,8 +249,8 @@ export default function Login() {
               <div
                 className={`p-3 text-xs font-semibold rounded-xl border ${
                   resetMessage.type === "success"
-                    ? "bg-emerald-50 dark:bg-emerald-950/40 border-emerald-200 dark:border-emerald-800 text-emerald-600 dark:text-emerald-400"
-                    : "bg-red-50 dark:bg-red-950/40 border-red-200 dark:border-red-800 text-red-600 dark:text-red-400"
+                    ? "bg-emerald-950/40 border-emerald-800 text-emerald-400"
+                    : "bg-red-950/40 border-red-800 text-red-400"
                 }`}
               >
                 {resetMessage.text}
@@ -244,13 +259,13 @@ export default function Login() {
 
             <form onSubmit={handleForgotPassword} className="space-y-4">
               <div>
-                <label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">
+                <label className="text-xs font-semibold text-indigo-300 uppercase tracking-wider">
                   Account Email
                 </label>
                 <div className="mt-1.5 relative">
                   <HiOutlineMail
                     size={18}
-                    className="absolute left-4 top-3.5 text-zinc-400"
+                    className="absolute left-4 top-3.5 text-indigo-400/60"
                   />
                   <input
                     type="email"
@@ -258,7 +273,7 @@ export default function Login() {
                     value={resetEmail}
                     onChange={(e) => setResetEmail(e.target.value)}
                     placeholder="example@gmail.com"
-                    className="w-full h-11 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-[#09090b] text-zinc-900 dark:text-white placeholder-zinc-400 pl-11 pr-4 text-sm outline-none focus:border-zinc-900 dark:focus:border-zinc-100 transition"
+                    className="w-full h-11 rounded-xl border border-indigo-950 bg-[#1c1c38] text-white placeholder-indigo-400/40 pl-11 pr-4 text-sm outline-none focus:border-purple-500 transition"
                   />
                 </div>
               </div>
@@ -267,14 +282,14 @@ export default function Login() {
                 <button
                   type="button"
                   onClick={() => setIsForgotModalOpen(false)}
-                  className="flex-1 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-700 text-xs font-semibold text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition cursor-pointer"
+                  className="flex-1 py-2.5 rounded-xl border border-indigo-950 text-xs font-semibold text-indigo-300 hover:bg-[#1c1c38] transition cursor-pointer"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={resetLoading}
-                  className="flex-1 py-2.5 rounded-xl bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 text-xs font-semibold hover:bg-zinc-800 dark:hover:bg-white transition shadow-xs cursor-pointer disabled:opacity-50"
+                  className="flex-1 py-2.5 rounded-xl bg-purple-600 text-white text-xs font-semibold hover:bg-purple-500 transition shadow-md shadow-purple-600/30 cursor-pointer disabled:opacity-50"
                 >
                   {resetLoading ? "Sending Link..." : "Send Reset Link"}
                 </button>

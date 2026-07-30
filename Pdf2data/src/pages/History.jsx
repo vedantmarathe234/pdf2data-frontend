@@ -60,7 +60,7 @@ export default function History() {
       result = result.filter(
         (s) =>
           s.title?.toLowerCase().includes(q) ||
-          s.fileName?.toLowerCase().includes(q),
+          s.fileName?.toLowerCase().includes(q)
       );
     }
 
@@ -88,11 +88,12 @@ export default function History() {
   };
 
   const handlePin = async (session) => {
+    const sessionId = session.id || session._id;
     setSessions((prev) =>
-      prev.map((s) => (s.id === session.id ? { ...s, pinned: !s.pinned } : s)),
+      prev.map((s) => ((s.id || s._id) === sessionId ? { ...s, pinned: !s.pinned } : s))
     );
     try {
-      await togglePinSession(session.id);
+      await togglePinSession(sessionId);
     } catch (err) {
       console.error(err);
       toast.error("Could not update pin.");
@@ -101,20 +102,22 @@ export default function History() {
   };
 
   const startRename = (session) => {
-    setEditingId(session.id);
+    const sessionId = session.id || session._id;
+    setEditingId(sessionId);
     setEditTitle(session.title || session.fileName);
   };
 
   const submitRename = async (session) => {
+    const sessionId = session.id || session._id;
     const title = editTitle.trim();
     setEditingId(null);
     if (!title || title === session.title) return;
 
     setSessions((prev) =>
-      prev.map((s) => (s.id === session.id ? { ...s, title } : s)),
+      prev.map((s) => ((s.id || s._id) === sessionId ? { ...s, title } : s))
     );
     try {
-      await renameSession(session.id, title);
+      await renameSession(sessionId, title);
       toast.success("Chat renamed.");
     } catch (err) {
       console.error(err);
@@ -125,10 +128,12 @@ export default function History() {
 
   const confirmDelete = async () => {
     if (!deleteTarget) return;
+    const sessionId = deleteTarget.id || deleteTarget._id;
+
     setDeleting(true);
     try {
-      await deleteSession(deleteTarget.id);
-      setSessions((prev) => prev.filter((s) => s.id !== deleteTarget.id));
+      await deleteSession(sessionId);
+      setSessions((prev) => prev.filter((s) => (s.id || s._id) !== sessionId));
       toast.success("Chat deleted.");
     } catch (err) {
       console.error(err);
@@ -140,151 +145,188 @@ export default function History() {
   };
 
   return (
-    <div className="w-full min-h-screen bg-[#F4F5F8] dark:bg-[#09090b] p-4 sm:p-6 space-y-6">
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 bg-white dark:bg-[#121215] p-4 rounded-3xl border border-zinc-200/80 dark:border-zinc-800 shadow-xs">
+    <div className="w-full h-full min-h-0 bg-[#F8F8FC] dark:bg-[#0B0A10] p-4 sm:p-6 flex flex-col gap-4 overflow-hidden box-border">
+      <style>{`
+        ::-webkit-scrollbar {
+          width: 5px;
+          height: 5px;
+        }
+        ::-webkit-scrollbar-track {
+          background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+          background: #CBD5E1;
+          border-radius: 9999px;
+        }
+        .dark ::-webkit-scrollbar-thumb {
+          background: #332C57;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+          background: #94A3B8;
+        }
+        .dark ::-webkit-scrollbar-thumb:hover {
+          background: #7C3AED;
+        }
+        * {
+          scrollbar-width: thin;
+          scrollbar-color: #CBD5E1 transparent;
+        }
+        .dark * {
+          scrollbar-color: #332C57 transparent;
+        }
+      `}</style>
+
+      {/* Top Filter Bar */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 bg-white dark:bg-[#1A1635] p-4 rounded-3xl border border-[#E2E8F0] dark:border-[#332C57] shadow-xs shrink-0">
         <div className="relative flex-1 max-w-md">
-          <HiOutlineSearch
-            size={18}
-            className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400"
-          />
+          <HiOutlineSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#64748B] dark:text-[#A5A1C4] text-lg" />
           <input
+            type="text"
+            placeholder="Search by document or chat title..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            placeholder="Search by document or chat title..."
-            className="w-full pl-10 pr-4 py-2 text-sm rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-[#09090b] outline-none focus:ring-2 focus:ring-zinc-400 dark:focus:ring-zinc-700 text-zinc-800 dark:text-zinc-100 placeholder-zinc-400 transition"
+            className="w-full pl-10 pr-4 py-2 text-sm bg-[#F8F8FC] dark:bg-[#251F47] border border-[#E2E8F0] dark:border-[#332C57] rounded-xl outline-none focus:ring-2 focus:ring-[#7C3AED] text-[#1E1B4B] dark:text-[#E9E7F5] placeholder-[#64748B] dark:placeholder-[#A5A1C4] transition"
           />
         </div>
 
-        <span className="text-xs font-semibold text-zinc-500 dark:text-zinc-400 px-2">
-          {filtered.length} chat{filtered.length !== 1 ? "s" : ""}
-        </span>
+        <div className="flex items-center justify-between sm:justify-end gap-3 px-1">
+          <h1 className="text-sm font-bold text-[#1E1B4B] dark:text-white truncate sm:hidden">
+            Chat History
+          </h1>
+          <span className="text-xs font-semibold text-[#64748B] dark:text-[#A5A1C4]">
+            {filtered.length} chat{filtered.length !== 1 ? "s" : ""}
+          </span>
+        </div>
       </div>
 
-      <div className="bg-white dark:bg-[#121215] rounded-3xl border border-zinc-200/80 dark:border-zinc-800 shadow-xs overflow-hidden">
-        {loading ? (
-          <div className="p-16 text-center text-zinc-400 dark:text-zinc-500 text-sm font-medium">
-            Loading history...
-          </div>
-        ) : filtered.length === 0 ? (
-          <div className="p-16 text-center text-zinc-400 dark:text-zinc-500 text-sm font-medium">
-            {search
-              ? "No chats match your search."
-              : "No chats yet — extract a document to get started."}
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
+      {/* Main Table Container */}
+      <div className="bg-white dark:bg-[#1A1635] rounded-3xl border border-[#E2E8F0] dark:border-[#332C57] shadow-xs flex-1 flex flex-col min-h-0 overflow-hidden">
+        <div className="flex-1 overflow-y-auto min-h-0">
+          {loading ? (
+            <div className="h-full flex items-center justify-center text-[#64748B] dark:text-[#A5A1C4] text-sm font-medium">
+              Loading history...
+            </div>
+          ) : filtered.length === 0 ? (
+            <div className="h-full flex items-center justify-center text-[#64748B] dark:text-[#A5A1C4] text-sm font-medium text-center px-4">
+              {search
+                ? "No chats match your search."
+                : "No chats yet — extract a document to get started."}
+            </div>
+          ) : (
             <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="border-b border-zinc-100 dark:border-zinc-800 bg-zinc-50/50 dark:bg-[#09090b]/40 text-[11px] font-bold uppercase tracking-wider text-zinc-400 dark:text-zinc-500">
-                  <th className="py-4 px-4 w-12 text-center"></th>
-                  <th className="py-4 px-6 font-bold">Chat</th>
-                  <th className="py-4 px-6 font-bold">Document</th>
-                  <th className="py-4 px-6 font-bold">Last updated</th>
-                  <th className="py-4 px-6 font-bold text-right">Actions</th>
+              <thead className="sticky top-0 z-10 bg-[#F8F8FC] dark:bg-[#1A1635]">
+                <tr className="border-b border-[#E2E8F0] dark:border-[#332C57] text-[11px] font-bold text-[#64748B] dark:text-[#A5A1C4] uppercase tracking-wider">
+                  <th className="py-4 px-6 w-12 text-center bg-[#F8F8FC]/90 dark:bg-[#1A1635]/90 backdrop-blur-xs"></th>
+                  <th className="py-4 px-6 font-bold w-[45%] bg-[#F8F8FC]/90 dark:bg-[#1A1635]/90 backdrop-blur-xs">Chat</th>
+                  <th className="py-4 px-6 font-bold bg-[#F8F8FC]/90 dark:bg-[#1A1635]/90 backdrop-blur-xs">Document</th>
+                  <th className="py-4 px-6 font-bold bg-[#F8F8FC]/90 dark:bg-[#1A1635]/90 backdrop-blur-xs">Last updated</th>
+                  <th className="py-4 px-6 font-bold text-right bg-[#F8F8FC]/90 dark:bg-[#1A1635]/90 backdrop-blur-xs">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800/60 text-sm">
-                {currentItems.map((session) => (
-                  <tr
-                    key={session.id}
-                    className={`hover:bg-zinc-50/80 dark:hover:bg-zinc-800/40 transition group ${
-                      session.pinned ? "bg-zinc-50/40 dark:bg-zinc-900/20" : ""
-                    }`}
-                  >
-                    <td className="py-4 px-4 text-center">
-                      <button
-                        onClick={() => handlePin(session)}
-                        className="text-zinc-300 dark:text-zinc-600 hover:text-zinc-800 dark:hover:text-white transition cursor-pointer"
-                        title={session.pinned ? "Unpin" : "Pin"}
-                      >
-                        {session.pinned ? (
-                          <HiStar
-                            size={18}
-                            className="text-zinc-800 dark:text-zinc-200"
+              <tbody className="divide-y divide-[#E2E8F0] dark:divide-[#332C57]/60 text-sm">
+                {currentItems.map((session) => {
+                  const sessionId = session.id || session._id;
+                  return (
+                    <tr
+                      key={sessionId}
+                      className={`hover:bg-[#F8F8FC]/80 dark:hover:bg-[#251F47]/40 transition group ${
+                        session.pinned ? "bg-purple-50/50 dark:bg-[#251F47]/20" : ""
+                      }`}
+                    >
+                      <td className="py-4 px-6 text-center">
+                        <button
+                          onClick={() => handlePin(session)}
+                          className="text-[#64748B] dark:text-[#A5A1C4]/40 hover:text-[#1E1B4B] dark:hover:text-white transition cursor-pointer"
+                          title={session.pinned ? "Unpin" : "Pin"}
+                        >
+                          {session.pinned ? (
+                            <HiStar size={18} className="text-[#7C3AED] dark:text-[#C084FC]" />
+                          ) : (
+                            <HiOutlineStar size={18} />
+                          )}
+                        </button>
+                      </td>
+
+                      <td className="py-4 px-6 font-semibold text-[#1E1B4B] dark:text-[#E9E7F5]">
+                        {editingId === sessionId ? (
+                          <input
+                            autoFocus
+                            value={editTitle}
+                            onChange={(e) => setEditTitle(e.target.value)}
+                            onBlur={() => submitRename(session)}
+                            onKeyDown={(e) => {
+                              if (e.key === "Enter") submitRename(session);
+                              if (e.key === "Escape") setEditingId(null);
+                            }}
+                            className="w-full min-w-[240px] px-3 py-1.5 rounded-xl border border-[#E2E8F0] dark:border-[#332C57] text-xs outline-none bg-white dark:bg-[#251F47] text-[#1E1B4B] dark:text-[#E9E7F5]"
                           />
                         ) : (
-                          <HiOutlineStar size={18} />
+                          <span
+                            onDoubleClick={() => startRename(session)}
+                            className="cursor-text hover:text-[#7C3AED] dark:hover:text-[#C084FC] transition block truncate max-w-xl"
+                            title="Double-click to rename"
+                          >
+                            {session.title || session.fileName || "Untitled Chat"}
+                          </span>
                         )}
-                      </button>
-                    </td>
+                      </td>
 
-                    <td className="py-4 px-6 font-semibold text-zinc-800 dark:text-zinc-200">
-                      {editingId === session.id ? (
-                        <input
-                          autoFocus
-                          value={editTitle}
-                          onChange={(e) => setEditTitle(e.target.value)}
-                          onBlur={() => submitRename(session)}
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter") submitRename(session);
-                            if (e.key === "Escape") setEditingId(null);
-                          }}
-                          className="px-2.5 py-1 rounded-lg border border-zinc-300 dark:border-zinc-700 text-sm outline-none bg-white dark:bg-[#09090b] text-zinc-800 dark:text-zinc-100"
-                        />
-                      ) : (
-                        <span
-                          onDoubleClick={() => startRename(session)}
-                          className="cursor-text hover:text-zinc-900 dark:hover:text-white transition"
-                        >
-                          {session.title || "Untitled Chat"}
-                        </span>
-                      )}
-                    </td>
+                      <td className="py-4 px-6 text-[#64748B] dark:text-[#A5A1C4]">
+                        <div className="flex items-center gap-2">
+                          <HiOutlineDocumentText
+                            size={16}
+                            className="text-[#64748B] dark:text-[#A5A1C4]/60 shrink-0"
+                          />
+                          <span className="truncate max-w-[200px] text-xs font-medium">
+                            {session.fileName || "N/A"}
+                          </span>
+                        </div>
+                      </td>
 
-                    <td className="py-4 px-6 text-zinc-500 dark:text-zinc-400">
-                      <div className="flex items-center gap-2">
-                        <HiOutlineDocumentText
-                          size={18}
-                          className="text-zinc-400 shrink-0"
-                        />
-                        <span className="truncate max-w-[200px] text-xs font-medium">
-                          {session.fileName || "N/A"}
-                        </span>
-                      </div>
-                    </td>
+                      <td className="py-4 px-6 text-xs text-[#64748B] dark:text-[#A5A1C4] whitespace-nowrap">
+                        {session.updatedAt
+                          ? new Date(session.updatedAt).toLocaleString()
+                          : "-"}
+                      </td>
 
-                    <td className="py-4 px-6 text-xs text-zinc-500 dark:text-zinc-400 whitespace-nowrap">
-                      {session.updatedAt
-                        ? new Date(session.updatedAt).toLocaleString()
-                        : "-"}
-                    </td>
+                      <td className="py-4 px-6 text-right">
+                        <div className="flex items-center justify-end gap-1.5">
+                          <button
+                            onClick={() => startRename(session)}
+                            title="Rename"
+                            className="p-1.5 rounded-lg text-[#64748B] dark:text-[#A5A1C4] hover:text-[#1E1B4B] dark:hover:text-white hover:bg-[#F8F8FC] dark:hover:bg-[#251F47] transition cursor-pointer"
+                          >
+                            <HiOutlinePencil size={16} />
+                          </button>
 
-                    <td className="py-4 px-6 text-right">
-                      <div className="flex items-center justify-end gap-1.5">
-                        <button
-                          onClick={() => startRename(session)}
-                          title="Rename"
-                          className="p-1.5 rounded-xl text-zinc-400 hover:text-zinc-800 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition cursor-pointer"
-                        >
-                          <HiOutlinePencil size={15} />
-                        </button>
+                          <button
+                            onClick={() => setDeleteTarget(session)}
+                            title="Delete"
+                            className="p-1.5 rounded-lg text-[#64748B] dark:text-[#A5A1C4] hover:text-red-500 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-500/10 transition cursor-pointer"
+                          >
+                            <HiOutlineTrash size={16} />
+                          </button>
 
-                        <button
-                          onClick={() => setDeleteTarget(session)}
-                          title="Delete"
-                          className="p-1.5 rounded-xl text-zinc-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition cursor-pointer"
-                        >
-                          <HiOutlineTrash size={15} />
-                        </button>
-
-                        <button
-                          onClick={() => navigate(`/chat/${session.id}`)}
-                          className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 text-xs font-semibold hover:bg-zinc-800 dark:hover:bg-white transition ml-1 cursor-pointer"
-                        >
-                          <HiOutlineChatAlt2 size={14} /> Open
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
+                          <button
+                            onClick={() => navigate(`/chat/${sessionId}`)}
+                            className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-[#7C3AED] hover:bg-[#6D28D9] text-white text-xs font-semibold transition ml-1 cursor-pointer shadow-xs"
+                          >
+                            <HiOutlineChatAlt2 size={14} /> Open
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
-          </div>
-        )}
+          )}
+        </div>
 
+        {/* Pagination Footer */}
         {!loading && filtered.length > 0 && (
-          <div className="px-6 py-4 border-t border-zinc-200/80 dark:border-zinc-800 flex items-center justify-end gap-6 bg-zinc-50/50 dark:bg-zinc-900/30">
-            <p className="text-xs text-zinc-600 dark:text-zinc-400">
+          <div className="px-6 py-3 border-t border-[#E2E8F0] dark:border-[#332C57] flex items-center justify-end gap-6 bg-[#F8F8FC]/50 dark:bg-[#1A1635]/30 shrink-0">
+            <p className="text-xs text-[#64748B] dark:text-[#A5A1C4]">
               Showing{" "}
               {filtered.length === 0 ? 0 : `${startIndex + 1}-${endIndex}`} of{" "}
               {filtered.length} items
@@ -294,7 +336,7 @@ export default function History() {
               <button
                 onClick={() => handlePageChange(currentPage - 1)}
                 disabled={currentPage === 1}
-                className="p-1.5 text-zinc-400 hover:text-zinc-800 dark:hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition cursor-pointer"
+                className="p-1.5 text-[#64748B] dark:text-[#A5A1C4] hover:text-[#1E1B4B] dark:hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition cursor-pointer"
               >
                 <HiChevronLeft size={16} />
               </button>
@@ -306,8 +348,8 @@ export default function History() {
                     onClick={() => handlePageChange(page)}
                     className={`w-7 h-7 rounded-lg text-xs transition cursor-pointer ${
                       currentPage === page
-                        ? "border border-zinc-800 dark:border-zinc-200 text-zinc-900 dark:text-white font-bold bg-zinc-100 dark:bg-zinc-800"
-                        : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white"
+                        ? "border border-[#7C3AED] text-[#7C3AED] dark:text-[#C084FC] font-bold bg-[#F3E8FF] dark:bg-[#251F47]"
+                        : "text-[#64748B] dark:text-[#A5A1C4] hover:text-[#1E1B4B] dark:hover:text-white"
                     }`}
                   >
                     {page}
@@ -318,7 +360,7 @@ export default function History() {
               <button
                 onClick={() => handlePageChange(currentPage + 1)}
                 disabled={currentPage === totalPages}
-                className="p-1.5 text-zinc-400 hover:text-zinc-800 dark:hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition cursor-pointer"
+                className="p-1.5 text-[#64748B] dark:text-[#A5A1C4] hover:text-[#1E1B4B] dark:hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition cursor-pointer"
               >
                 <HiChevronRight size={16} />
               </button>
@@ -328,7 +370,7 @@ export default function History() {
               <select
                 value={itemsPerPage}
                 onChange={(e) => setItemsPerPage(Number(e.target.value))}
-                className="appearance-none pl-3 pr-8 py-1.5 bg-white dark:bg-[#121215] border border-zinc-200 dark:border-zinc-800 rounded-xl text-xs font-medium text-zinc-700 dark:text-zinc-300 outline-none focus:ring-2 focus:ring-zinc-400 dark:focus:ring-zinc-700 cursor-pointer"
+                className="appearance-none pl-3 pr-8 py-1.5 bg-white dark:bg-[#251F47] border border-[#E2E8F0] dark:border-[#332C57] rounded-xl text-xs font-medium text-[#1E1B4B] dark:text-[#E9E7F5] outline-none focus:ring-2 focus:ring-[#7C3AED] cursor-pointer"
               >
                 <option value={10}>10 / page</option>
                 <option value={20}>20 / page</option>
@@ -336,7 +378,7 @@ export default function History() {
               </select>
               <HiChevronDown
                 size={14}
-                className="absolute right-2.5 top-2.5 text-zinc-400 pointer-events-none"
+                className="absolute right-2.5 top-2.5 text-[#64748B] dark:text-[#A5A1C4] pointer-events-none"
               />
             </div>
           </div>
@@ -346,7 +388,7 @@ export default function History() {
       <ConfirmModal
         open={!!deleteTarget}
         title="Delete this chat?"
-        message={`"${deleteTarget?.title}" and its message history will be permanently removed.`}
+        message={`"${deleteTarget?.title || deleteTarget?.fileName || "Untitled"}" and its message history will be permanently removed.`}
         confirmLabel="Delete"
         danger
         loading={deleting}

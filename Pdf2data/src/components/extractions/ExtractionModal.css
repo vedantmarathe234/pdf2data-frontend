@@ -15,17 +15,17 @@
   max-width: 100%;
   max-height: 85vh;
   background: #ffffff;
-  border: 1px solid #e4e4e7;
+  border: 1px solid #E2E8F0;
   border-radius: 20px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.15);
 }
 
 :root.dark .modal {
-  background: #121215;
-  border-color: #27272a;
+  background: #1A1635;
+  border-color: #332C57;
 }
 
 /* Modal Header */
@@ -34,35 +34,68 @@
   justify-content: space-between;
   align-items: center;
   padding: 16px 24px;
-  border-bottom: 1px solid #f4f4f5;
+  border-bottom: 1px solid #E2E8F0;
 }
 
 :root.dark .modal-header {
-  border-bottom-color: #27272a;
+  border-bottom-color: #332C57;
 }
 
 .modal-header h2 {
   margin: 0;
-  font-size: 1rem;
+  font-size: 0.95rem;
   font-weight: 700;
-  color: #18181b;
+  color: #1E1B4B;
 }
 
 :root.dark .modal-header h2 {
   color: #ffffff;
 }
 
+.modal-subtitle {
+  margin: 0;
+  font-size: 11px;
+  color: #64748B;
+}
+
+:root.dark .modal-subtitle {
+  color: #A5A1C4;
+}
+
+.modal-header-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.doc-icon-badge {
+  padding: 8px;
+  border-radius: 12px;
+  background: #F3E8FF;
+  color: #7C3AED;
+}
+
+:root.dark .doc-icon-badge {
+  background: #251F47;
+  color: #C084FC;
+}
+
 .close-btn {
   border: none;
   background: transparent;
   font-size: 18px;
-  color: #a1a1aa;
+  color: #64748B;
   cursor: pointer;
   padding: 4px;
+  transition: color 0.2s;
 }
 
 .close-btn:hover {
-  color: #18181b;
+  color: #1E1B4B;
+}
+
+:root.dark .close-btn:hover {
+  color: #ffffff;
 }
 
 /* Modal Body */
@@ -77,32 +110,37 @@
 
 .simple-row {
   padding: 12px 16px;
-  background: #fafafa;
-  border: 1px solid #f4f4f5;
+  background: #F8F8FC;
+  border: 1px solid #E2E8F0;
   border-radius: 12px;
 }
 
 :root.dark .simple-row {
-  background: #09090b;
-  border-color: #27272a;
+  background: #251F47;
+  border-color: #332C57;
 }
 
 .main-key {
   font-size: 11px;
   font-weight: 700;
-  color: #71717a;
+  color: #64748B;
   text-transform: uppercase;
   margin-bottom: 4px;
+  letter-spacing: 0.05em;
+}
+
+:root.dark .main-key {
+  color: #A5A1C4;
 }
 
 .main-val {
   font-size: 13px;
   font-weight: 600;
-  color: #18181b;
+  color: #1E1B4B;
 }
 
 :root.dark .main-val {
-  color: #f4f4f5;
+  color: #E9E7F5;
 }
 
 .simple-list {
@@ -110,19 +148,55 @@
   padding-left: 20px;
 }
 
+.simple-object {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.simple-object-row {
+  display: flex;
+  gap: 8px;
+}
+
+.key-label {
+  font-weight: 700;
+  color: #64748B;
+}
+
+:root.dark .key-label {
+  color: #A5A1C4;
+}
+
+.val-content {
+  color: #1E1B4B;
+}
+
+:root.dark .val-content {
+  color: #E9E7F5;
+}
+
+.loading-modal {
+  padding: 30px;
+  text-align: center;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+/* Download Footer */
 .download-footer {
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 16px 24px;
-  border-top: 1px solid #f4f4f5;
+  border-top: 1px solid #E2E8F0;
   background: #ffffff;
   gap: 12px;
 }
 
 :root.dark .download-footer {
-  border-top-color: #27272a;
-  background: #121215;
+  border-top-color: #332C57;
+  background: #1A1635;
 }
 
 .download-label {
@@ -131,10 +205,14 @@
   gap: 6px;
   font-size: 11px;
   font-weight: 700;
-  color: #71717a;
+  color: #64748B;
   text-transform: uppercase;
   letter-spacing: 0.05em;
   white-space: nowrap;
+}
+
+:root.dark .download-label {
+  color: #A5A1C4;
 }
 
 .download-buttons {
@@ -144,26 +222,19 @@
 }
 
 .download-buttons button {
-  padding: 8px 18px;
+  padding: 8px 16px;
   cursor: pointer;
-  background: #f4f4f5;
-  color: #18181b;
-  border: 1px solid #e4e4e7;
+  border: none;
   border-radius: 10px;
   font-weight: 700;
   font-size: 12px;
-  transition: all 0.2s ease;
+  transition: opacity 0.2s ease, transform 0.1s ease;
 }
 
-:root.dark .download-buttons button {
-  background: #18181b;
-  color: #f4f4f5;
-  border-color: #27272a;
+.download-buttons button:hover {
+  opacity: 0.9;
 }
 
-.download-buttons button:hover,
-:root.dark .download-buttons button:hover {
-  background: #000000 !important;
-  color: #ffffff !important;
-  border-color: #000000 !important;
+.download-buttons button:active {
+  transform: scale(0.97);
 }

@@ -55,7 +55,6 @@ export default function Settings() {
 
       if (avatarFile) {
         const updatedUser = await uploadAvatar(avatarFile);
-
         const newAvatarUrl = updatedUser?.profilePicture || updatedUser;
 
         setSavedAvatar(newAvatarUrl);
@@ -129,15 +128,29 @@ export default function Settings() {
   };
 
   return (
-    <div className="w-full min-h-screen bg-[#F4F5F8] dark:bg-[#09090b] p-4 sm:p-6 space-y-6">
-      <div className="bg-white dark:bg-[#121215] border border-zinc-200/80 dark:border-zinc-800 rounded-3xl p-6 sm:p-8 shadow-xs space-y-10 w-full">
-        <div className="space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-zinc-100 dark:border-zinc-800">
+    <div className="w-full min-h-[calc(100vh-4rem)] bg-[#F8F8FC] dark:bg-[#0B0A10] text-[#2D2A4A] dark:text-[#E9E7F5] px-4 sm:px-6 py-4 transition-colors duration-200">
+      <div className="max-w-4xl mx-auto bg-white dark:bg-[#1A1635] border border-[#E2E8F0] dark:border-[#332C57] rounded-2xl p-5 sm:p-6 shadow-md space-y-6 w-full transition-colors duration-200">
+        
+        {/* Header Title */}
+        <div>
+          <h1 className="text-lg font-bold text-[#1E1B4B] dark:text-white">
+            Account Settings
+          </h1>
+          <p className="text-xs text-gray-500 dark:text-[#A5A1C4] mt-0.5">
+            Manage your account preferences, appearance, and security options.
+          </p>
+        </div>
+
+        <hr className="border-[#E2E8F0] dark:border-[#332C57]" />
+
+        {/* Profile Information Section */}
+        <div className="space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <h2 className="text-base font-bold text-zinc-900 dark:text-white">
+              <h2 className="text-sm font-bold text-[#1E1B4B] dark:text-white">
                 Profile Information
               </h2>
-              <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
+              <p className="text-xs text-gray-500 dark:text-[#A5A1C4]">
                 Update your personal details and display photo.
               </p>
             </div>
@@ -145,34 +158,34 @@ export default function Settings() {
             {!isEditing ? (
               <button
                 onClick={() => setIsEditing(true)}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-zinc-200 dark:border-zinc-700 text-zinc-800 dark:text-zinc-200 text-xs font-semibold hover:bg-zinc-100 dark:hover:bg-zinc-800 transition cursor-pointer self-start sm:self-auto"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-gray-200 dark:border-[#332C57] text-gray-800 dark:text-[#E9E7F5] text-xs font-medium hover:bg-gray-50 dark:hover:bg-[#251F47] transition cursor-pointer self-start sm:self-auto"
               >
-                <HiOutlinePencil size={15} /> Edit Profile
+                <HiOutlinePencil size={14} /> Edit Profile
               </button>
             ) : (
               <div className="flex items-center gap-2 self-start sm:self-auto">
                 <button
                   onClick={handleSaveProfile}
                   disabled={saving}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 text-xs font-semibold hover:bg-zinc-800 dark:hover:bg-white transition shadow-xs cursor-pointer disabled:opacity-50"
+                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-gradient-to-r from-[#8B5CF6] to-[#EC4899] text-white text-xs font-medium hover:opacity-90 transition shadow-xs cursor-pointer disabled:opacity-50"
                 >
-                  <HiCheck size={16} />{" "}
-                  {saving ? "Uploading..." : "Save Changes"}
+                  <HiCheck size={14} />{" "}
+                  {saving ? "Saving..." : "Save"}
                 </button>
                 <button
                   onClick={handleCancelProfile}
                   disabled={saving}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl border border-zinc-200 dark:border-zinc-700 text-zinc-600 dark:text-zinc-300 text-xs font-semibold hover:bg-zinc-100 dark:hover:bg-zinc-800 transition cursor-pointer disabled:opacity-50"
+                  className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg border border-gray-200 dark:border-[#332C57] text-gray-600 dark:text-[#A5A1C4] text-xs font-medium hover:bg-gray-50 dark:hover:bg-[#251F47] transition cursor-pointer disabled:opacity-50"
                 >
-                  <HiX size={16} /> Cancel
+                  <HiX size={14} /> Cancel
                 </button>
               </div>
             )}
           </div>
 
-          <div className="flex flex-col sm:flex-row items-center gap-6 p-5 bg-zinc-50/80 dark:bg-[#09090b] rounded-2xl border border-zinc-200/80 dark:border-zinc-800/80">
+          <div className="flex flex-col sm:flex-row items-center gap-4 p-4 bg-gray-50/60 dark:bg-[#251F47] rounded-xl border border-gray-200 dark:border-[#332C57]">
             <div className="relative group shrink-0">
-              <div className="w-28 h-28 rounded-full bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 font-bold text-3xl flex items-center justify-center overflow-hidden border-4 border-white dark:border-zinc-800 shadow-xs">
+              <div className="w-20 h-20 rounded-full bg-gradient-to-b from-[#A78BFA] to-[#7C3AED] text-white font-bold text-2xl flex items-center justify-center overflow-hidden border-2 border-white dark:border-[#1A1635] shadow-xs">
                 {tempAvatar || savedAvatar ? (
                   <img
                     src={tempAvatar || savedAvatar}
@@ -186,8 +199,8 @@ export default function Settings() {
               </div>
 
               {isEditing && (
-                <label className="absolute bottom-0 right-0 p-2 bg-zinc-900 dark:bg-zinc-100 hover:bg-zinc-800 dark:hover:bg-white rounded-full text-white dark:text-zinc-900 shadow-md cursor-pointer transition transform hover:scale-105">
-                  <HiOutlineCamera size={16} />
+                <label className="absolute bottom-0 right-0 p-1.5 bg-[#7C3AED] hover:bg-[#6D28D9] rounded-full text-white shadow-xs cursor-pointer transition transform hover:scale-105">
+                  <HiOutlineCamera size={14} />
                   <input
                     type="file"
                     accept="image/*"
@@ -198,33 +211,32 @@ export default function Settings() {
               )}
             </div>
 
-            <div className="space-y-1 text-center sm:text-left flex-1">
-              <h3 className="text-base font-bold text-zinc-900 dark:text-white">
+            <div className="space-y-0.5 text-center sm:text-left flex-1">
+              <h3 className="text-sm font-bold text-[#1E1B4B] dark:text-white">
                 {fullName || user?.username || "User"}
               </h3>
-              <p className="text-xs text-zinc-500 dark:text-zinc-400">
+              <p className="text-xs text-gray-500 dark:text-[#A5A1C4]">
                 {email || user?.email || "No email available"}
               </p>
               {isEditing ? (
-                <p className="text-xs text-zinc-600 dark:text-zinc-300 font-medium pt-1">
-                  Click the camera icon to select a new avatar for Cloudinary
-                  upload.
+                <p className="text-[11px] text-gray-500 dark:text-[#A5A1C4]">
+                  Click camera to upload new avatar.
                 </p>
               ) : (
-                <span className="inline-block mt-2 px-3 py-0.5 rounded-full bg-zinc-200 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300 text-[11px] font-bold">
+                <span className="inline-block mt-1 px-2.5 py-0.5 rounded-full bg-purple-100 dark:bg-[#7C3AED]/20 text-purple-700 dark:text-[#C084FC] text-[10px] font-bold">
                   {user?.role === "ROLE_ADMIN"
                     ? "Administrator"
                     : user?.role === "ROLE_USER"
-                      ? "User"
-                      : user?.role || "Member"}
+                    ? "User"
+                    : user?.role || "Member"}
                 </span>
               )}
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
-            <div className="space-y-2">
-              <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-1">
+              <label className="text-[11px] font-bold text-gray-500 dark:text-[#A5A1C4] uppercase tracking-wider">
                 Full Name
               </label>
               <input
@@ -232,16 +244,16 @@ export default function Settings() {
                 disabled={!isEditing}
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
-                className="w-full px-4 py-3 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/80 dark:bg-[#09090b] text-sm text-zinc-900 dark:text-white disabled:opacity-75 outline-none focus:ring-2 focus:ring-zinc-400 dark:focus:ring-zinc-700 transition"
+                className="w-full px-3.5 py-2 rounded-xl border border-gray-200 dark:border-[#332C57] bg-gray-50 dark:bg-[#251F47] text-xs text-gray-900 dark:text-white disabled:opacity-75 outline-none focus:border-[#8B5CF6] transition"
               />
             </div>
 
-            <div className="space-y-2">
+            <div className="space-y-1">
               <div className="flex justify-between items-center">
-                <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
+                <label className="text-[11px] font-bold text-gray-500 dark:text-[#A5A1C4] uppercase tracking-wider">
                   Role
                 </label>
-                <span className="text-[10px] text-zinc-400 dark:text-zinc-500 font-medium">
+                <span className="text-[10px] text-gray-400 dark:text-[#A5A1C4]/50">
                   Read-only
                 </span>
               </div>
@@ -253,18 +265,15 @@ export default function Settings() {
                   user?.role === "ROLE_ADMIN"
                     ? "Administrator"
                     : user?.role === "ROLE_USER"
-                      ? "User"
-                      : user?.role?.replace("ROLE_", "") || "User"
+                    ? "User"
+                    : user?.role?.replace("ROLE_", "") || "User"
                 }
-                className="w-full px-4 py-3 rounded-2xl border border-zinc-100 dark:border-zinc-800/80 bg-zinc-100/50 dark:bg-[#09090b]/50 text-sm text-zinc-400 dark:text-zinc-500 cursor-not-allowed select-none"
+                className="w-full px-3.5 py-2 rounded-xl border border-gray-200 dark:border-[#332C57] bg-gray-100 dark:bg-[#251F47]/50 text-xs text-gray-400 dark:text-[#A5A1C4]/50 cursor-not-allowed select-none"
               />
-              <p className="text-[11px] text-zinc-400 dark:text-zinc-500">
-                Account roles cannot be modified.
-              </p>
             </div>
 
-            <div className="space-y-2 md:col-span-2">
-              <label className="text-xs font-bold text-zinc-500 dark:text-zinc-400 uppercase tracking-wider">
+            <div className="space-y-1 sm:col-span-2">
+              <label className="text-[11px] font-bold text-gray-500 dark:text-[#A5A1C4] uppercase tracking-wider">
                 Email Address
               </label>
               <input
@@ -272,85 +281,87 @@ export default function Settings() {
                 disabled={!isEditing}
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-3 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/80 dark:bg-[#09090b] text-sm text-zinc-900 dark:text-white disabled:opacity-75 outline-none focus:ring-2 focus:ring-zinc-400 dark:focus:ring-zinc-700 transition"
+                className="w-full px-3.5 py-2 rounded-xl border border-gray-200 dark:border-[#332C57] bg-gray-50 dark:bg-[#251F47] text-xs text-gray-900 dark:text-white disabled:opacity-75 outline-none focus:border-[#8B5CF6] transition"
               />
             </div>
           </div>
         </div>
 
-        <hr className="border-zinc-100 dark:border-zinc-800" />
+        <hr className="border-[#E2E8F0] dark:border-[#332C57]" />
 
-        <div className="space-y-4">
+        {/* Interface Appearance Section */}
+        <div className="space-y-3">
           <div>
-            <h2 className="text-base font-bold text-zinc-900 dark:text-white">
+            <h2 className="text-sm font-bold text-[#1E1B4B] dark:text-white">
               Interface Appearance
             </h2>
-            <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
-              Customize theme mode for the application interface.
+            <p className="text-xs text-gray-500 dark:text-[#A5A1C4]">
+              Customize theme mode for the application.
             </p>
           </div>
 
-          <div className="p-1.5 rounded-2xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/80 dark:bg-[#09090b] flex gap-2 max-w-xs">
+          <div className="p-1 rounded-xl border border-gray-200 dark:border-[#332C57] bg-gray-50 dark:bg-[#251F47] flex gap-2 max-w-xs">
             <button
               onClick={() => handleThemeChange("light")}
-              className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-bold transition cursor-pointer ${
+              className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-medium transition cursor-pointer ${
                 theme === "light"
-                  ? "bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white shadow-xs"
-                  : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900"
+                  ? "bg-white text-gray-900 shadow-xs"
+                  : "text-gray-500 dark:text-[#A5A1C4] hover:text-gray-900 dark:hover:text-white"
               }`}
             >
-              <HiOutlineSun size={16} /> Light
+              <HiOutlineSun size={15} /> Light
             </button>
 
             <button
               onClick={() => handleThemeChange("dark")}
-              className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-xs font-bold transition cursor-pointer ${
+              className={`flex-1 flex items-center justify-center gap-1.5 py-2 rounded-lg text-xs font-medium transition cursor-pointer ${
                 theme === "dark"
-                  ? "bg-white dark:bg-zinc-800 text-zinc-900 dark:text-white shadow-xs"
-                  : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900"
+                  ? "bg-[#120F24] text-white shadow-xs"
+                  : "text-gray-500 dark:text-[#A5A1C4] hover:text-gray-900 dark:hover:text-white"
               }`}
             >
-              <HiOutlineMoon size={16} /> Dark
+              <HiOutlineMoon size={15} /> Dark
             </button>
           </div>
         </div>
 
-        <hr className="border-zinc-100 dark:border-zinc-800" />
+        <hr className="border-[#E2E8F0] dark:border-[#332C57]" />
 
-        <div className="space-y-4">
+        {/* Security & Passwords Section */}
+        <div className="space-y-3">
           <div>
-            <h2 className="text-base font-bold text-zinc-900 dark:text-white">
+            <h2 className="text-sm font-bold text-[#1E1B4B] dark:text-white">
               Security & Passwords
             </h2>
-            <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
-              Manage login credentials for your account.
+            <p className="text-xs text-gray-500 dark:text-[#A5A1C4]">
+              Manage login credentials and passwords.
             </p>
           </div>
 
           <div>
             <button
               onClick={() => setIsPasswordModalOpen(true)}
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-700 text-zinc-800 dark:text-zinc-200 text-xs font-semibold hover:bg-zinc-100 dark:hover:bg-zinc-800 transition cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-xl border border-gray-200 dark:border-[#332C57] text-gray-800 dark:text-[#E9E7F5] text-xs font-medium hover:bg-gray-50 dark:hover:bg-[#251F47] transition cursor-pointer"
             >
-              <HiOutlineLockClosed size={16} /> Change Account Password
+              <HiOutlineLockClosed size={15} /> Change Account Password
             </button>
           </div>
         </div>
 
-        <hr className="border-zinc-100 dark:border-zinc-800" />
+        <hr className="border-[#E2E8F0] dark:border-[#332C57]" />
 
-        <div className="space-y-3 pt-2">
-          <h2 className="text-base font-bold text-red-600 dark:text-red-400">
+        {/* Danger Zone Section */}
+        <div className="space-y-2">
+          <h2 className="text-xs font-bold text-red-600 dark:text-red-400 uppercase tracking-wider">
             Danger Zone
           </h2>
-          <div className="p-5 rounded-2xl border border-red-200 dark:border-red-950/60 bg-red-50/40 dark:bg-red-950/20 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div className="p-4 rounded-xl border border-red-200 dark:border-red-900/40 bg-red-50/40 dark:bg-red-500/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <p className="text-sm font-bold text-zinc-900 dark:text-white">
+              <p className="text-xs font-bold text-[#1E1B4B] dark:text-white">
                 Delete Account
               </p>
-              <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
-                Permanently delete your profile and remove all stored extraction
-                history.
+              <p className="text-[11px] text-gray-500 dark:text-[#A5A1C4]">
+                Permanently delete profile and extraction records.
               </p>
             </div>
             <button
@@ -359,31 +370,32 @@ export default function Settings() {
                   "Please contact system administrator to purge database account records.",
                 )
               }
-              className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-semibold transition shrink-0 cursor-pointer shadow-xs"
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-medium transition shrink-0 cursor-pointer shadow-xs"
             >
-              <HiOutlineTrash size={16} /> Delete Account
+              <HiOutlineTrash size={15} /> Delete Account
             </button>
           </div>
         </div>
       </div>
 
+      {/* Crop/Zoom Modal */}
       {showCropModal && (
         <div className="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center p-4">
-          <div className="bg-white dark:bg-[#121215] rounded-3xl p-6 max-w-md w-full border border-zinc-200 dark:border-zinc-800 shadow-xl space-y-6">
+          <div className="bg-white dark:bg-[#1A1635] rounded-2xl p-5 max-w-sm w-full border border-gray-200 dark:border-[#332C57] shadow-xl space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-base font-bold text-zinc-900 dark:text-white">
-                Adjust & Zoom Profile Photo
+              <h3 className="text-sm font-bold text-[#1E1B4B] dark:text-white">
+                Adjust Profile Photo
               </h3>
               <button
                 onClick={() => setShowCropModal(false)}
-                className="p-1 rounded-full text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition cursor-pointer"
+                className="p-1 rounded-full text-gray-400 hover:text-gray-900 dark:hover:text-white transition cursor-pointer"
               >
-                <HiX size={20} />
+                <HiX size={18} />
               </button>
             </div>
 
-            <div className="flex justify-center py-2">
-              <div className="w-36 h-36 rounded-full overflow-hidden border-4 border-zinc-900 dark:border-zinc-100 shadow-md flex items-center justify-center bg-zinc-950">
+            <div className="flex justify-center py-1">
+              <div className="w-28 h-28 rounded-full overflow-hidden border-2 border-[#7C3AED] shadow-xs flex items-center justify-center bg-gray-950">
                 <img
                   src={tempAvatar}
                   alt="Crop Preview"
@@ -393,11 +405,10 @@ export default function Settings() {
               </div>
             </div>
 
-            <div className="space-y-2">
-              <div className="flex justify-between text-xs text-zinc-500 font-medium">
-                <span>Zoom Out</span>
+            <div className="space-y-1">
+              <div className="flex justify-between text-[11px] text-gray-500 dark:text-[#A5A1C4]">
+                <span>Zoom</span>
                 <span>{Math.round(cropZoom * 100)}%</span>
-                <span>Zoom In</span>
               </div>
               <input
                 type="range"
@@ -406,14 +417,14 @@ export default function Settings() {
                 step="0.05"
                 value={cropZoom}
                 onChange={(e) => setCropZoom(Number(e.target.value))}
-                className="w-full accent-zinc-900 dark:accent-zinc-100 cursor-pointer"
+                className="w-full accent-[#7C3AED] cursor-pointer"
               />
             </div>
 
-            <div className="flex justify-end gap-3 pt-2">
+            <div className="flex justify-end gap-2 pt-1">
               <button
                 onClick={() => setShowCropModal(false)}
-                className="px-4 py-2 rounded-xl text-xs font-semibold bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 hover:bg-zinc-800 dark:hover:bg-white transition cursor-pointer"
+                className="px-3.5 py-1.5 rounded-xl text-xs font-medium bg-gradient-to-r from-[#8B5CF6] to-[#EC4899] text-white hover:opacity-90 transition cursor-pointer shadow-xs"
               >
                 Done
               </button>
@@ -422,6 +433,7 @@ export default function Settings() {
         </div>
       )}
 
+      {/* Change Password Modal */}
       <ChangePasswordModal
         open={isPasswordModalOpen}
         onClose={() => setIsPasswordModalOpen(false)}

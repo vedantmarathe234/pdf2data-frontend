@@ -50,13 +50,13 @@ export default function ResetPassword() {
   };
 
   return (
-    <div className="min-h-screen bg-zinc-100 dark:bg-[#09090b] flex items-center justify-center p-4">
-      <div className="w-full max-w-md bg-white dark:bg-[#121215] border border-zinc-200/80 dark:border-zinc-800 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6">
+    <div className="min-h-screen bg-[#F8F8FC] dark:bg-[#0B0A10] text-[#2D2A4A] dark:text-[#E9E7F5] flex items-center justify-center p-4">
+      <div className="w-full max-w-md bg-white dark:bg-[#1A1635] border border-[#E2E8F0] dark:border-[#332C57] rounded-3xl p-6 sm:p-8 shadow-xl space-y-6">
         <div>
-          <h2 className="text-2xl font-bold text-zinc-900 dark:text-white">
+          <h2 className="text-2xl font-bold text-[#1E1B4B] dark:text-white">
             Set New Password
           </h2>
-          <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
+          <p className="text-xs text-gray-500 dark:text-[#A5A1C4] mt-1">
             Please enter your new password below.
           </p>
         </div>
@@ -75,13 +75,13 @@ export default function ResetPassword() {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">
+            <label className="text-xs font-bold text-gray-500 dark:text-[#A5A1C4] uppercase tracking-wider">
               New Password
             </label>
             <div className="mt-1.5 relative">
               <HiOutlineLockClosed
                 size={18}
-                className="absolute left-4 top-3.5 text-zinc-400"
+                className="absolute left-4 top-3.5 text-gray-400 dark:text-[#A5A1C4]"
               />
               <input
                 type={showPassword ? "text" : "password"}
@@ -89,11 +89,11 @@ export default function ResetPassword() {
                 value={newPassword}
                 onChange={(e) => setNewPassword(e.target.value)}
                 placeholder="•••••••••"
-                className="w-full h-11 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-[#09090b] text-zinc-900 dark:text-white placeholder-zinc-400 pl-11 pr-11 text-sm outline-none focus:border-zinc-900 dark:focus:border-zinc-100 transition"
+                className="w-full h-11 rounded-xl border border-gray-200 dark:border-[#332C57] bg-gray-50 dark:bg-[#251F47] text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-[#A5A1C4]/60 pl-11 pr-11 text-sm outline-none focus:border-[#8B5CF6] transition"
               />
               <button
                 type="button"
-                className="absolute right-4 top-3.5 text-zinc-400 hover:text-zinc-600 dark:hover:text-zinc-200 transition"
+                className="absolute right-4 top-3.5 text-gray-400 hover:text-gray-600 dark:hover:text-[#E9E7F5] transition cursor-pointer"
                 onClick={() => setShowPassword(!showPassword)}
               >
                 {showPassword ? <HiEyeOff size={18} /> : <HiEye size={18} />}
@@ -102,13 +102,13 @@ export default function ResetPassword() {
           </div>
 
           <div>
-            <label className="text-xs font-semibold text-zinc-600 dark:text-zinc-400 uppercase tracking-wider">
+            <label className="text-xs font-bold text-gray-500 dark:text-[#A5A1C4] uppercase tracking-wider">
               Confirm New Password
             </label>
             <div className="mt-1.5 relative">
               <HiOutlineLockClosed
                 size={18}
-                className="absolute left-4 top-3.5 text-zinc-400"
+                className="absolute left-4 top-3.5 text-gray-400 dark:text-[#A5A1C4]"
               />
               <input
                 type={showPassword ? "text" : "password"}
@@ -116,7 +116,7 @@ export default function ResetPassword() {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="•••••••••"
-                className="w-full h-11 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50 dark:bg-[#09090b] text-zinc-900 dark:text-white placeholder-zinc-400 pl-11 pr-4 text-sm outline-none focus:border-zinc-900 dark:focus:border-zinc-100 transition"
+                className="w-full h-11 rounded-xl border border-gray-200 dark:border-[#332C57] bg-gray-50 dark:bg-[#251F47] text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-[#A5A1C4]/60 pl-11 pr-4 text-sm outline-none focus:border-[#8B5CF6] transition"
               />
             </div>
           </div>
@@ -124,7 +124,7 @@ export default function ResetPassword() {
           <button
             type="submit"
             disabled={loading}
-            className="w-full h-11 mt-2 rounded-xl bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 font-semibold text-sm transition-all duration-200 hover:bg-zinc-800 dark:hover:bg-white disabled:opacity-50 cursor-pointer shadow-md"
+            className="w-full h-11 mt-2 rounded-xl bg-gradient-to-r from-[#8B5CF6] to-[#EC4899] text-white font-semibold text-sm transition-all duration-200 hover:opacity-90 disabled:opacity-50 cursor-pointer shadow-md"
           >
             {loading ? "Updating..." : "Update Password"}
           </button>
@@ -133,7 +133,7 @@ export default function ResetPassword() {
         <div className="text-center pt-2">
           <Link
             to="/login"
-            className="text-xs font-semibold text-zinc-500 hover:text-zinc-900 dark:hover:text-white transition"
+            className="text-xs font-semibold text-gray-500 dark:text-[#A5A1C4] hover:text-[#1E1B4B] dark:hover:text-white transition"
           >
             Back to Sign In
           </Link>

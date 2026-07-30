@@ -57,11 +57,13 @@ export default function Sidebar({ mobileOpen, setMobileOpen }) {
       )}
 
       <aside
-        className={`fixed lg:static top-0 left-0 z-50 h-screen w-[260px] border-r border-zinc-200/80 dark:border-zinc-800 bg-white dark:bg-[#121215] flex flex-col transition-transform duration-300 ease-in-out shrink-0 ${
-          mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
+        className={`fixed lg:static top-4 left-4 lg:top-0 lg:left-0 lg:my-4 lg:ml-4 z-50 h-[calc(100vh-2rem)] w-[260px] rounded-3xl border border-gray-200/80 dark:border-[#332C57] bg-white dark:bg-[#1E1A3B] shadow-xl shadow-gray-300/40 dark:shadow-black/50 flex flex-col transition-transform duration-300 ease-in-out shrink-0 overflow-hidden ${
+          mobileOpen
+            ? "translate-x-0"
+            : "-translate-x-[calc(100%+1rem)] lg:translate-x-0"
         }`}
       >
-        <div className="px-5 py-4 flex items-center justify-between shrink-0 border-b border-zinc-100 dark:border-zinc-800/60">
+        <div className="px-5 py-4 flex items-center justify-between shrink-0 border-b border-gray-100 dark:border-[#332C57]/60">
           <div className="flex items-center gap-3.5 min-w-0">
             <div className="w-16 h-16 flex items-center justify-center shrink-0 overflow-hidden">
               <img
@@ -76,25 +78,25 @@ export default function Sidebar({ mobileOpen, setMobileOpen }) {
                 className="object-contain scale-135 dark:invert transition-all"
               />
             </div>
-            <h1 className="text-xl font-extrabold tracking-tight whitespace-nowrap text-zinc-900 dark:text-white">
+            <h1 className="text-xl font-extrabold tracking-tight whitespace-nowrap text-gray-900 dark:text-white">
               PDF2DATA
             </h1>
           </div>
 
           <button
             onClick={() => setMobileOpen(false)}
-            className="lg:hidden p-1.5 text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 rounded-lg cursor-pointer"
+            className="lg:hidden p-1.5 text-gray-400 hover:text-gray-700 dark:hover:text-[#E9E7F5] rounded-lg cursor-pointer"
           >
             <HiX size={20} />
           </button>
         </div>
 
-        <div className="px-3 flex-1 space-y-2 mt-4">
+        <div className="px-3 flex-1 space-y-2 mt-4 overflow-y-auto">
           <button
             onClick={handleNewExtraction}
-            className="w-full flex items-center gap-3.5 px-3.5 py-2.5 rounded-3xl border border-zinc-200 dark:border-zinc-800 text-zinc-800 dark:text-zinc-200 text-sm font-bold bg-transparent hover:bg-zinc-900 hover:text-white dark:hover:bg-zinc-100 dark:hover:text-zinc-900 transition-all cursor-pointer shadow-xs mb-2"
+            className="w-full flex items-center gap-3.5 px-3.5 py-2.5 rounded-3xl transition-all text-sm font-semibold text-gray-600 dark:text-[#A5A1C4] hover:text-gray-900 dark:hover:text-white hover:bg-gray-100/80 dark:hover:bg-[#251F47] cursor-pointer mb-2"
           >
-            <HiOutlinePlusCircle size={19} />
+            <HiOutlinePlusCircle size={18} className="text-gray-400 dark:text-[#A5A1C4]/60" />
             <span>New Extraction</span>
           </button>
 
@@ -109,16 +111,16 @@ export default function Sidebar({ mobileOpen, setMobileOpen }) {
                 className={`w-full flex items-center gap-3.5 px-3.5 py-2.5 rounded-3xl transition-all text-sm font-semibold
                   ${
                     isActive
-                      ? "bg-zinc-900 text-white dark:bg-zinc-100 dark:text-zinc-900 shadow-xs"
-                      : "text-zinc-600 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white hover:bg-zinc-100/80 dark:hover:bg-zinc-800"
+                      ? "bg-gradient-to-r from-[#8B5CF6] to-[#EC4899] text-white shadow-xs"
+                      : "text-gray-600 dark:text-[#A5A1C4] hover:text-gray-900 dark:hover:text-white hover:bg-gray-100/80 dark:hover:bg-[#251F47]"
                   }`}
               >
                 <Icon
                   size={18}
                   className={
                     isActive
-                      ? "text-white dark:text-zinc-900"
-                      : "text-zinc-400 dark:text-zinc-500"
+                      ? "text-white"
+                      : "text-gray-400 dark:text-[#A5A1C4]/60"
                   }
                 />
                 <span>{item.name}</span>
@@ -127,17 +129,17 @@ export default function Sidebar({ mobileOpen, setMobileOpen }) {
           })}
         </div>
 
-        <div className="px-3 pb-5 pt-2 shrink-0 border-t border-zinc-100 dark:border-zinc-800/80">
-          <div className="flex items-center gap-3 p-2 rounded-2xl bg-zinc-50 dark:bg-[#09090b] border border-zinc-200/60 dark:border-zinc-800/80">
-            <div className="w-8 h-8 rounded-full bg-zinc-900 dark:bg-zinc-100 text-white dark:text-zinc-900 font-bold text-xs flex items-center justify-center shrink-0">
+        <div className="px-3 pb-5 pt-2 shrink-0 border-t border-gray-100 dark:border-[#332C57]/80">
+          <div className="flex items-center gap-3 p-2 rounded-2xl bg-gray-50 dark:bg-[#171331] border border-gray-200/60 dark:border-[#332C57]/80">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-[#8B5CF6] to-[#EC4899] text-white font-bold text-xs flex items-center justify-center shrink-0">
               {(user?.username || "?").charAt(0).toUpperCase()}
             </div>
 
             <div className="min-w-0 flex-1">
-              <p className="text-xs font-bold text-zinc-900 dark:text-white truncate">
+              <p className="text-xs font-bold text-gray-900 dark:text-white truncate">
                 {user?.username || "Guest"}
               </p>
-              <p className="text-[11px] font-medium text-zinc-400 dark:text-zinc-500 truncate">
+              <p className="text-[11px] font-medium text-gray-400 dark:text-[#A5A1C4]/60 truncate">
                 {user?.email ||
                   (user?.role === "ROLE_ADMIN" ? "Administrator" : "User")}
               </p>
@@ -146,7 +148,7 @@ export default function Sidebar({ mobileOpen, setMobileOpen }) {
             <button
               onClick={logout}
               title="Log out"
-              className="p-1.5 rounded-xl text-zinc-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition"
+              className="p-1.5 rounded-xl text-gray-400 dark:text-[#A5A1C4]/60 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-500/10 transition"
             >
               <HiOutlineLogout size={16} />
             </button>

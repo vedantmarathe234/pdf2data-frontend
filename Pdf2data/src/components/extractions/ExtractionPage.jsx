@@ -106,21 +106,22 @@ export default function ExtractionPage() {
       case "png":
         return <FaFileImage className="text-purple-500 text-lg shrink-0" />;
       default:
-        return <FaFileAlt className="text-zinc-400 text-lg shrink-0" />;
+        return <FaFileAlt className="text-[#A5A1C4] text-lg shrink-0" />;
     }
   };
 
   return (
-    <div className="w-full min-h-screen bg-[#F4F5F8] dark:bg-[#09090b] p-4 sm:p-6 space-y-6">
-      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 bg-white dark:bg-[#121215] p-4 rounded-3xl border border-zinc-200/80 dark:border-zinc-800 shadow-xs">
+    <div className="w-full h-full min-h-0 bg-[#F8F8FC] dark:bg-[#0B0A10] p-4 sm:p-6 flex flex-col gap-4 overflow-hidden box-border">
+      {/* Top Filter Bar */}
+      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 bg-white dark:bg-[#1A1635] p-4 rounded-3xl border border-[#E2E8F0] dark:border-[#332C57] shadow-xs shrink-0">
         <div className="relative flex-1 max-w-md">
-          <HiOutlineSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 text-zinc-400 text-lg" />
+          <HiOutlineSearch className="absolute left-3.5 top-1/2 -translate-y-1/2 text-[#64748B] dark:text-[#A5A1C4] text-lg" />
           <input
             type="text"
             placeholder="Search extractions..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-10 pr-4 py-2 text-sm bg-zinc-50 dark:bg-[#09090b] border border-zinc-200 dark:border-zinc-800 rounded-xl outline-none focus:ring-2 focus:ring-zinc-400 dark:focus:ring-zinc-700 text-zinc-800 dark:text-zinc-100 placeholder-zinc-400 transition"
+            className="w-full pl-10 pr-4 py-2 text-sm bg-[#F8F8FC] dark:bg-[#251F47] border border-[#E2E8F0] dark:border-[#332C57] rounded-xl outline-none focus:ring-2 focus:ring-[#7C3AED] text-[#1E1B4B] dark:text-[#E9E7F5] placeholder-[#64748B] dark:placeholder-[#A5A1C4] transition"
           />
         </div>
 
@@ -128,7 +129,7 @@ export default function ExtractionPage() {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value)}
-            className="px-3.5 py-2 text-xs font-semibold bg-zinc-50 dark:bg-[#09090b] border border-zinc-200 dark:border-zinc-800 rounded-xl outline-none text-zinc-700 dark:text-zinc-300 cursor-pointer"
+            className="px-3.5 py-2 text-xs font-semibold bg-[#F8F8FC] dark:bg-[#251F47] border border-[#E2E8F0] dark:border-[#332C57] rounded-xl outline-none text-[#1E1B4B] dark:text-[#E9E7F5] cursor-pointer"
           >
             <option value="All">All Statuses</option>
             <option value="Success">Success</option>
@@ -139,7 +140,7 @@ export default function ExtractionPage() {
           <select
             value={typeFilter}
             onChange={(e) => setTypeFilter(e.target.value)}
-            className="px-3.5 py-2 text-xs font-semibold bg-zinc-50 dark:bg-[#09090b] border border-zinc-200 dark:border-zinc-800 rounded-xl outline-none text-zinc-700 dark:text-zinc-300 cursor-pointer"
+            className="px-3.5 py-2 text-xs font-semibold bg-[#F8F8FC] dark:bg-[#251F47] border border-[#E2E8F0] dark:border-[#332C57] rounded-xl outline-none text-[#1E1B4B] dark:text-[#E9E7F5] cursor-pointer"
           >
             <option value="All">All Types</option>
             {[...new Set(documents.map((d) => d.documentType))]
@@ -153,20 +154,21 @@ export default function ExtractionPage() {
         </div>
       </div>
 
-      <div className="bg-white dark:bg-[#121215] rounded-3xl border border-zinc-200/80 dark:border-zinc-800 shadow-xs overflow-hidden">
-        <div className="overflow-x-auto">
+      {/* Main Table Container */}
+      <div className="bg-white dark:bg-[#1A1635] rounded-3xl border border-[#E2E8F0] dark:border-[#332C57] shadow-xs flex-1 flex flex-col min-h-0 overflow-hidden">
+        <div className="flex-1 overflow-y-auto min-h-0">
           <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="border-b border-zinc-100 dark:border-zinc-800 bg-zinc-50/50 dark:bg-[#09090b]/40 text-[11px] font-bold text-zinc-400 dark:text-zinc-500 uppercase tracking-wider">
-                <th className="py-4 px-6">Document</th>
-                <th className="py-4 px-6">Type</th>
-                <th className="py-4 px-6">Status</th>
-                <th className="py-4 px-6">Extracted At</th>
-                <th className="py-4 px-6 text-right">Actions</th>
+            <thead className="sticky top-0 z-10 bg-[#F8F8FC] dark:bg-[#1A1635]">
+              <tr className="border-b border-[#E2E8F0] dark:border-[#332C57] text-[11px] font-bold text-[#64748B] dark:text-[#A5A1C4] uppercase tracking-wider">
+                <th className="py-4 px-6 bg-[#F8F8FC]/90 dark:bg-[#1A1635]/90 backdrop-blur-xs">Document</th>
+                <th className="py-4 px-6 bg-[#F8F8FC]/90 dark:bg-[#1A1635]/90 backdrop-blur-xs">Type</th>
+                <th className="py-4 px-6 bg-[#F8F8FC]/90 dark:bg-[#1A1635]/90 backdrop-blur-xs">Status</th>
+                <th className="py-4 px-6 bg-[#F8F8FC]/90 dark:bg-[#1A1635]/90 backdrop-blur-xs">Extracted At</th>
+                <th className="py-4 px-6 text-right bg-[#F8F8FC]/90 dark:bg-[#1A1635]/90 backdrop-blur-xs">Actions</th>
               </tr>
             </thead>
 
-            <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800/60 text-sm">
+            <tbody className="divide-y divide-[#E2E8F0] dark:divide-[#332C57]/60 text-sm">
               {currentItems.map((doc, idx) => {
                 const docId = doc.documentId || doc.id;
                 const uniqueKey = `${docId}_${idx}`;
@@ -182,18 +184,18 @@ export default function ExtractionPage() {
                   <tr
                     key={uniqueKey}
                     onClick={() => setSelectedId(docId)}
-                    className="hover:bg-zinc-50/80 dark:hover:bg-zinc-800/40 transition cursor-pointer group"
+                    className="hover:bg-[#F8F8FC]/80 dark:hover:bg-[#251F47]/40 transition cursor-pointer group"
                   >
                     <td className="py-4 px-6">
                       <div className="flex items-center gap-3">
                         {getFileIcon(doc.fileName)}
-                        <span className="font-semibold text-zinc-800 dark:text-zinc-200 group-hover:text-zinc-900 dark:group-hover:text-white truncate max-w-[240px]">
+                        <span className="font-semibold text-[#1E1B4B] dark:text-[#E9E7F5] group-hover:text-[#7C3AED] dark:group-hover:text-[#C084FC] truncate max-w-[240px]">
                           {doc.fileName || "Untitled Document"}
                         </span>
                       </div>
                     </td>
 
-                    <td className="py-4 px-6 text-xs font-medium text-zinc-500 dark:text-zinc-400">
+                    <td className="py-4 px-6 text-xs font-medium text-[#64748B] dark:text-[#A5A1C4]">
                       {doc.documentType || "GENERAL_DOCUMENT"}
                     </td>
 
@@ -203,15 +205,15 @@ export default function ExtractionPage() {
                           isFailed
                             ? "bg-red-50 dark:bg-red-950/40 text-red-600 dark:text-red-400 border border-red-200 dark:border-red-900/50"
                             : isPending
-                              ? "bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300 border border-zinc-200 dark:border-zinc-700"
-                              : "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/50"
+                            ? "bg-[#F8F8FC] dark:bg-[#251F47] text-[#64748B] dark:text-[#A5A1C4] border border-[#E2E8F0] dark:border-[#332C57]"
+                            : "bg-emerald-50 dark:bg-emerald-950/40 text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/50"
                         }`}
                       >
                         {doc.status || "Success"}
                       </span>
                     </td>
 
-                    <td className="py-4 px-6 text-xs text-zinc-500 dark:text-zinc-400 whitespace-nowrap">
+                    <td className="py-4 px-6 text-xs text-[#64748B] dark:text-[#A5A1C4] whitespace-nowrap">
                       {dateStr ? new Date(dateStr).toLocaleString() : "-"}
                     </td>
 
@@ -226,7 +228,7 @@ export default function ExtractionPage() {
                               activeDropdown === uniqueKey ? null : uniqueKey,
                             )
                           }
-                          className="p-1.5 rounded-lg text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition"
+                          className="p-1.5 rounded-lg text-[#64748B] dark:text-[#A5A1C4] hover:text-[#1E1B4B] dark:hover:text-white hover:bg-[#F8F8FC] dark:hover:bg-[#251F47] transition"
                         >
                           <HiOutlineDotsVertical size={16} />
                         </button>
@@ -234,14 +236,14 @@ export default function ExtractionPage() {
                         {activeDropdown === uniqueKey && (
                           <div
                             onMouseLeave={() => setActiveDropdown(null)}
-                            className="absolute right-0 mt-2 w-44 bg-white dark:bg-[#121215] border border-zinc-200/80 dark:border-zinc-800 rounded-2xl shadow-lg p-1.5 z-20 space-y-0.5 text-left"
+                            className="absolute right-0 mt-2 w-44 bg-white dark:bg-[#1A1635] border border-[#E2E8F0] dark:border-[#332C57] rounded-2xl shadow-lg p-1.5 z-20 space-y-0.5 text-left"
                           >
                             <button
                               onClick={() => {
                                 downloadJson(docId);
                                 setActiveDropdown(null);
                               }}
-                              className="w-full flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-xl transition"
+                              className="w-full flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-[#1E1B4B] dark:text-[#E9E7F5] hover:bg-[#F8F8FC] dark:hover:bg-[#251F47] rounded-xl transition"
                             >
                               <HiOutlineDownload size={14} /> Download JSON
                             </button>
@@ -250,7 +252,7 @@ export default function ExtractionPage() {
                                 downloadCsv(docId);
                                 setActiveDropdown(null);
                               }}
-                              className="w-full flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-xl transition"
+                              className="w-full flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-[#1E1B4B] dark:text-[#E9E7F5] hover:bg-[#F8F8FC] dark:hover:bg-[#251F47] rounded-xl transition"
                             >
                               <HiOutlineDownload size={14} /> Download CSV
                             </button>
@@ -259,7 +261,7 @@ export default function ExtractionPage() {
                                 downloadExcel(docId);
                                 setActiveDropdown(null);
                               }}
-                              className="w-full flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-xl transition"
+                              className="w-full flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-[#1E1B4B] dark:text-[#E9E7F5] hover:bg-[#F8F8FC] dark:hover:bg-[#251F47] rounded-xl transition"
                             >
                               <HiOutlineDownload size={14} /> Download Excel
                             </button>
@@ -268,7 +270,7 @@ export default function ExtractionPage() {
                                 downloadSql(docId);
                                 setActiveDropdown(null);
                               }}
-                              className="w-full flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-zinc-700 dark:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 rounded-xl transition"
+                              className="w-full flex items-center gap-2 px-3 py-1.5 text-xs font-medium text-[#1E1B4B] dark:text-[#E9E7F5] hover:bg-[#F8F8FC] dark:hover:bg-[#251F47] rounded-xl transition"
                             >
                               <HiOutlineDownload size={14} /> Download SQL
                             </button>
@@ -284,7 +286,7 @@ export default function ExtractionPage() {
                 <tr>
                   <td
                     colSpan="5"
-                    className="py-12 text-center text-zinc-400 dark:text-zinc-500 text-sm"
+                    className="py-12 text-center text-[#64748B] dark:text-[#A5A1C4] text-sm"
                   >
                     No extractions found.
                   </td>
@@ -294,9 +296,10 @@ export default function ExtractionPage() {
           </table>
         </div>
 
+        {/* Pagination Footer */}
         {filtered.length > 0 && (
-          <div className="px-6 py-4 border-t border-zinc-200/80 dark:border-zinc-800 flex items-center justify-end gap-6 bg-zinc-50/50 dark:bg-zinc-900/30">
-            <p className="text-xs text-zinc-600 dark:text-zinc-400">
+          <div className="px-6 py-3 border-t border-[#E2E8F0] dark:border-[#332C57] flex items-center justify-end gap-6 bg-[#F8F8FC]/50 dark:bg-[#1A1635]/30 shrink-0">
+            <p className="text-xs text-[#64748B] dark:text-[#A5A1C4]">
               Showing{" "}
               {filtered.length === 0 ? 0 : `${startIndex + 1}-${endIndex}`} of{" "}
               {filtered.length} items
@@ -306,7 +309,7 @@ export default function ExtractionPage() {
               <button
                 onClick={() => handlePageChange(currentPage - 1)}
                 disabled={currentPage === 1}
-                className="p-1.5 text-zinc-400 hover:text-zinc-800 dark:hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition cursor-pointer"
+                className="p-1.5 text-[#64748B] dark:text-[#A5A1C4] hover:text-[#1E1B4B] dark:hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition cursor-pointer"
               >
                 <HiChevronLeft size={16} />
               </button>
@@ -318,8 +321,8 @@ export default function ExtractionPage() {
                     onClick={() => handlePageChange(page)}
                     className={`w-7 h-7 rounded-lg text-xs transition cursor-pointer ${
                       currentPage === page
-                        ? "border border-zinc-800 dark:border-zinc-200 text-zinc-900 dark:text-white font-bold bg-zinc-100 dark:bg-zinc-800"
-                        : "text-zinc-500 dark:text-zinc-400 hover:text-zinc-900 dark:hover:text-white"
+                        ? "border border-[#7C3AED] text-[#7C3AED] dark:text-[#C084FC] font-bold bg-[#F3E8FF] dark:bg-[#251F47]"
+                        : "text-[#64748B] dark:text-[#A5A1C4] hover:text-[#1E1B4B] dark:hover:text-white"
                     }`}
                   >
                     {page}
@@ -330,7 +333,7 @@ export default function ExtractionPage() {
               <button
                 onClick={() => handlePageChange(currentPage + 1)}
                 disabled={currentPage === totalPages}
-                className="p-1.5 text-zinc-400 hover:text-zinc-800 dark:hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition cursor-pointer"
+                className="p-1.5 text-[#64748B] dark:text-[#A5A1C4] hover:text-[#1E1B4B] dark:hover:text-white disabled:opacity-30 disabled:cursor-not-allowed transition cursor-pointer"
               >
                 <HiChevronRight size={16} />
               </button>
@@ -340,7 +343,7 @@ export default function ExtractionPage() {
               <select
                 value={itemsPerPage}
                 onChange={(e) => setItemsPerPage(Number(e.target.value))}
-                className="appearance-none pl-3 pr-8 py-1.5 bg-white dark:bg-[#121215] border border-zinc-200 dark:border-zinc-800 rounded-xl text-xs font-medium text-zinc-700 dark:text-zinc-300 outline-none focus:ring-2 focus:ring-zinc-400 dark:focus:ring-zinc-700 cursor-pointer"
+                className="appearance-none pl-3 pr-8 py-1.5 bg-white dark:bg-[#251F47] border border-[#E2E8F0] dark:border-[#332C57] rounded-xl text-xs font-medium text-[#1E1B4B] dark:text-[#E9E7F5] outline-none focus:ring-2 focus:ring-[#7C3AED] cursor-pointer"
               >
                 <option value={10}>10 / page</option>
                 <option value={20}>20 / page</option>
@@ -348,7 +351,7 @@ export default function ExtractionPage() {
               </select>
               <HiChevronDown
                 size={14}
-                className="absolute right-2.5 top-2.5 text-zinc-400 pointer-events-none"
+                className="absolute right-2.5 top-2.5 text-[#64748B] dark:text-[#A5A1C4] pointer-events-none"
               />
             </div>
           </div>

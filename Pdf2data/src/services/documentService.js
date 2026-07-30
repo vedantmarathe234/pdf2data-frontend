@@ -5,7 +5,6 @@ export const uploadAndExtract = async (file, prompt, chatSessionId) => {
   const formData = new FormData();
   
   formData.append("file", file);
-
   formData.append("prompt", prompt ? prompt.trim() : "");
 
   if (chatSessionId && chatSessionId !== "null" && chatSessionId !== "undefined") {
@@ -43,13 +42,14 @@ const triggerBrowserDownload = (blob, filename) => {
   window.URL.revokeObjectURL(url);
 };
 
+
 const EXPORT_META = {
   json: { path: "json", ext: "json" },
   csv: { path: "csv", ext: "csv" },
-  excel: { path: "excel", ext: "xlsx" },
+  excel: { path: "excel", ext: "excel" },
+  xlsx: { path: "excel", ext: "xlsx" }, 
   sql: { path: "sql", ext: "sql" },
 };
-
 
 export const exportDocument = async (documentId, format) => {
   const meta = EXPORT_META[format];
@@ -59,9 +59,20 @@ export const exportDocument = async (documentId, format) => {
     responseType: "blob",
   });
 
-  triggerBrowserDownload(response.data, `document_${documentId}.${meta.ext}`);
-};
+  let mimeType = "application/octet-stream";
+  if (format === "excel") {
+    mimeType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+  } else if (format === "csv") {
+    mimeType = "text/csv;charset=utf-8;";
+  } else if (format === "json") {
+    mimeType = "application/json;charset=utf-8;";
+  } else if (format === "sql") {
+    mimeType = "application/sql;charset=utf-8;";
+  }
 
+  const blob = new Blob([response.data], { type: mimeType });
+  triggerBrowserDownload(blob, `document_${documentId}.${meta.ext}`);
+};
 
 export const getLearningSuggestions = async (documentType) => {
   const response = await api.get(`/learning/suggestions/${documentType}`);

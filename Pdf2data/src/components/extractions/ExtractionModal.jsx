@@ -10,6 +10,13 @@ import {
 
 import "./ExtractionModal.css";
 
+const EXPORT_FORMATS = [
+  { key: "json", label: "JSON", className: "bg-[#7C3AED] hover:bg-[#6D28D9] text-white" },
+  { key: "csv", label: "CSV", className: "bg-[#14B8A6] hover:bg-[#0D9488] text-white" },
+  { key: "excel", label: "EXCEL", className: "bg-[#16A34A] hover:bg-[#15803D] text-white" },
+  { key: "sql", label: "SQL", className: "bg-[#F97316] hover:bg-[#EA580C] text-white" },
+];
+
 const formatKey = (key) => {
   if (!key) return "";
   return key
@@ -59,6 +66,25 @@ export default function ExtractionModal({ id, onClose }) {
     }
   };
 
+  const handleDownload = (key) => {
+    switch (key) {
+      case "json":
+        downloadJson(id);
+        break;
+      case "csv":
+        downloadCsv(id);
+        break;
+      case "excel":
+        downloadExcel(id);
+        break;
+      case "sql":
+        downloadSql(id);
+        break;
+      default:
+        break;
+    }
+  };
+
   const renderValue = (val) => {
     if (val === null || val === undefined || val === "") return "—";
 
@@ -102,7 +128,9 @@ export default function ExtractionModal({ id, onClose }) {
     return (
       <div className="modal-overlay">
         <div className="modal loading-modal">
-          <div className="loading-state">Loading extraction details...</div>
+          <div className="loading-state text-[#1E1B4B] dark:text-[#E9E7F5]">
+            Loading extraction details...
+          </div>
         </div>
       </div>
     );
@@ -142,11 +170,16 @@ export default function ExtractionModal({ id, onClose }) {
             <span>Download As:</span>
           </div>
 
-          <div className="download-buttons">
-            <button onClick={() => downloadJson(id)}>JSON</button>
-            <button onClick={() => downloadCsv(id)}>CSV</button>
-            <button onClick={() => downloadExcel(id)}>EXCEL</button>
-            <button onClick={() => downloadSql(id)}>SQL</button>
+          <div className="download-buttons flex items-center gap-2">
+            {EXPORT_FORMATS.map((fmt) => (
+              <button
+                key={fmt.key}
+                onClick={() => handleDownload(fmt.key)}
+                className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition cursor-pointer shadow-xs ${fmt.className}`}
+              >
+                {fmt.label}
+              </button>
+            ))}
           </div>
         </div>
       </div>
