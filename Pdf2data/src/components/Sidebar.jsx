@@ -84,7 +84,7 @@ export default function Sidebar({ mobileOpen, setMobileOpen }) {
         <div className="px-3 flex-1 space-y-2 mt-4 overflow-y-auto">
           <button
             onClick={handleNewExtraction}
-            className="w-full flex items-center gap-3.5 px-3.5 py-2.5 rounded-3xl transition-all text-sm font-semibold text-gray-600 dark:text-[#A5A1C4] hover:text-gray-900 dark:hover:text-white hover:bg-gray-100/80 dark:hover:bg-[#251F47] cursor-pointer mb-2"
+            className="w-full flex items-center gap-3.5 px-3.5 py-2.5 rounded-2xl transition-all text-sm font-semibold text-gray-600 dark:text-[#A5A1C4] hover:text-gray-900 dark:hover:text-white hover:bg-gray-100/80 dark:hover:bg-[#251F47] cursor-pointer mb-2"
           >
             <HiOutlinePlusCircle size={18} className="text-gray-400 dark:text-[#A5A1C4]/60" />
             <span>New Extraction</span>
@@ -98,7 +98,7 @@ export default function Sidebar({ mobileOpen, setMobileOpen }) {
               <button
                 key={index}
                 onClick={() => handleNavigate(item.path)}
-                className={`w-full flex items-center gap-3.5 px-3.5 py-2.5 rounded-3xl transition-all text-sm font-semibold
+                className={`w-full flex items-center gap-3.5 px-3.5 py-2.5 rounded-2xl transition-all text-sm font-semibold
                   ${
                     isActive
                       ? "bg-gradient-to-r from-[#8B5CF6] to-[#EC4899] text-white shadow-xs"

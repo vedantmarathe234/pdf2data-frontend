@@ -6,6 +6,8 @@ import {
   Navigate,
   useLocation,
 } from "react-router-dom";
+
+import LandingPage from "./pages/LandingPage";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Dashboard from "./pages/Dashboard";
@@ -22,6 +24,7 @@ import AdminLayout from "./layouts/AdminLayout";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { ToastProvider } from "./context/ToastContext";
 
+
 function ProtectedRoute({ children }) {
   const token = localStorage.getItem("token");
   if (!token) {
@@ -29,6 +32,7 @@ function ProtectedRoute({ children }) {
   }
   return children;
 }
+
 function AdminRoute({ children }) {
   const { user } = useAuth();
   const isAdmin =
@@ -41,6 +45,7 @@ function AdminRoute({ children }) {
   }
   return children;
 }
+
 
 function MainAppContainer({ dark, setDark }) {
   const location = useLocation();
@@ -75,10 +80,10 @@ function MainAppContainer({ dark, setDark }) {
       {!isDashboard && (
         <div className="w-full flex-1">
           <Routes>
-            <Route path="/extractions" element={<Extractions />} />
-            <Route path="/history" element={<History />} />
-            <Route path="/settings" element={<Settings />} />
-            <Route path="/chat/:sessionId" element={<ChatSession />} />
+            <Route path="extractions" element={<Extractions />} />
+            <Route path="history" element={<History />} />
+            <Route path="settings" element={<Settings />} />
+            <Route path="chat/:sessionId" element={<ChatSession />} />
           </Routes>
         </div>
       )}
@@ -91,12 +96,14 @@ function AdminAppContainer({ dark, setDark }) {
     <AdminLayout dark={dark} setDark={setDark}>
       <Routes>
         <Route path="/" element={<AdminDashboard />} />
-        <Route path="/extractions" element={<AdminExtractions />} />
-        <Route path="/users" element={<AdminUsers />} />
+        <Route path="extractions" element={<AdminExtractions />} />
+        <Route path="users" element={<AdminUsers />} />
+        <Route path="settings" element={<Settings />} />
       </Routes>
     </AdminLayout>
   );
 }
+
 
 export default function App() {
   const [dark, setDark] = useState(() => {
@@ -118,10 +125,14 @@ export default function App() {
       <ToastProvider>
         <AuthProvider>
           <Routes>
-            <Route path="/" element={<Navigate to="/login" replace />} />
+            <Route index element={<LandingPage />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
-            <Route path="/admin/register" element={<Register />} />
+            <Route path="/admin/signup" element={<Register />} />
+            <Route
+              path="/admin/register"
+              element={<Navigate to="/admin/signup" replace />}
+            />
             <Route path="/reset-password" element={<ResetPassword />} />
 
             <Route
