@@ -13,6 +13,7 @@ import {
   HiOutlineChevronRight,
   HiOutlineTable,
   HiOutlineCode,
+  HiOutlineUpload,
 } from "react-icons/hi";
 import { BsSendFill } from "react-icons/bs";
 import { uploadAndExtract, exportDocument } from "../services/documentService";
@@ -108,6 +109,7 @@ export default function Dashboard() {
   const [exporting, setExporting] = useState("");
   const [result, setResult] = useState(null);
   const [previewUrl, setPreviewUrl] = useState(null);
+  const [isDragging, setIsDragging] = useState(false);
 
   const fileInputRef = useRef(null);
 
@@ -139,6 +141,41 @@ export default function Dashboard() {
       setFile(e.target.files[0]);
       setResult(null);
       localStorage.removeItem("pdf2data_active_result");
+    }
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+
+    const droppedFiles = e.dataTransfer.files;
+    if (droppedFiles && droppedFiles.length > 0) {
+      const selected = droppedFiles[0];
+      if (
+        selected.type === "application/pdf" ||
+        selected.name.toLowerCase().endsWith(".pdf") ||
+        selected.type.startsWith("image/")
+      ) {
+        setFile(selected);
+        setResult(null);
+        localStorage.removeItem("pdf2data_active_result");
+        toast.success(`Attached: ${selected.name}`);
+      } else {
+        toast.error("Please drop a valid PDF or document file.");
+      }
     }
   };
 
@@ -241,7 +278,13 @@ export default function Dashboard() {
   }, []);
 
   return (
-    <div className="w-full min-h-screen bg-[#F8F8FC] dark:bg-black/60 p-4 sm:p-5 space-y-4">
+    <div
+      onDragOver={handleDragOver}
+      onDragEnter={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+      className="w-full min-h-screen bg-[#F8F8FC] dark:bg-black/60 p-4 sm:p-5 space-y-4 relative"
+    >
       <style>{`
         ::-webkit-scrollbar {
           width: 6px;
@@ -277,8 +320,29 @@ export default function Dashboard() {
         }
       `}</style>
 
+      {/* Global Drag Overlay Hint */}
+      {isDragging && (
+        <div className="fixed inset-0 z-50 bg-purple-900/20 dark:bg-purple-950/40 backdrop-blur-xs border-4 border-dashed border-purple-500 rounded-3xl m-4 flex flex-col items-center justify-center pointer-events-none">
+          <div className="p-4 rounded-3xl bg-white dark:bg-[#1E1A3B] shadow-2xl flex flex-col items-center gap-2 border border-purple-300 dark:border-purple-800">
+            <HiOutlineUpload size={36} className="text-purple-600 animate-bounce" />
+            <p className="text-sm font-bold text-gray-800 dark:text-white">
+              Drop your PDF file here to attach
+            </p>
+          </div>
+        </div>
+      )}
+
       <div className="max-w-4xl mx-auto w-full space-y-2.5 pt-1">
-        <div className="bg-white dark:bg-[#1E1A3B] rounded-3xl p-3.5 border border-gray-200/80 dark:border-[#332C57] shadow-xs space-y-2.5">
+        {/* Prompt & Drop Area Box */}
+        <div
+          onDragOver={handleDragOver}
+          onDrop={handleDrop}
+          className={`bg-white dark:bg-[#1E1A3B] rounded-3xl p-3.5 border transition-all duration-200 shadow-xs space-y-2.5 ${
+            isDragging
+              ? "border-purple-500 ring-2 ring-purple-500/20 bg-purple-50/20 dark:bg-purple-950/20"
+              : "border-gray-200/80 dark:border-[#332C57]"
+          }`}
+        >
           <input
             type="text"
             value={prompt}
@@ -299,6 +363,7 @@ export default function Dashboard() {
 
               {!file ? (
                 <button
+                  type="button"
                   onClick={handleFileClick}
                   className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-gray-100 dark:bg-[#251F47] text-gray-700 dark:text-[#E9E7F5] text-xs font-semibold hover:bg-gray-200 dark:hover:bg-[#2D2657] transition cursor-pointer"
                 >
@@ -310,6 +375,7 @@ export default function Dashboard() {
                   <HiOutlineDocumentText size={15} />
                   <span className="truncate max-w-[160px]">{file.name}</span>
                   <button
+                    type="button"
                     onClick={() => {
                       setFile(null);
                       setResult(null);
@@ -317,7 +383,7 @@ export default function Dashboard() {
                       localStorage.removeItem("pdf2data_active_result");
                       if (fileInputRef.current) fileInputRef.current.value = "";
                     }}
-                    className="hover:text-red-500 ml-1"
+                    className="hover:text-red-500 ml-1 cursor-pointer"
                   >
                     <HiX size={13} />
                   </button>
@@ -388,8 +454,7 @@ export default function Dashboard() {
               Transform Unstructured PDFs into Clean Data
             </h1>
             <p className="text-xs sm:text-sm text-gray-500 dark:text-[#A5A1C4] max-w-xl mx-auto">
-              Upload any document above to instantly extract tables, key-value
-              pairs, dates, and entities with high accuracy.
+              Drag & drop any document here or click Attach Document to extract tables, key-value pairs, dates, and entities.
             </p>
           </div>
 
@@ -509,10 +574,11 @@ export default function Dashboard() {
                 )}
               </div>
 
-              {result && (
+              {/* Only shown when user approves & saves extraction */}
+              {result && result.isSaved && (
                 <button
                   onClick={() => navigate(`/chat/${result.chatSessionId}`)}
-                  className="flex items-center gap-1.5 px-3 py-1 rounded-3xl bg-gradient-to-r from-[#8B5CF6] to-[#EC4899] hover:from-[#7C3AED] hover:to-[#DB2777] text-white text-xs font-semibold transition whitespace-nowrap shadow-xs"
+                  className="flex items-center gap-1.5 px-3 py-1 rounded-3xl bg-gradient-to-r from-[#8B5CF6] to-[#EC4899] hover:from-[#7C3AED] hover:to-[#DB2777] text-white text-xs font-semibold transition whitespace-nowrap shadow-xs animate-in fade-in duration-200"
                 >
                   <HiOutlineChatAlt2 size={14} />
                   <span>Continue in Chat</span>
@@ -548,55 +614,58 @@ export default function Dashboard() {
             </div>
 
             {result && (
-              <div className="pt-2.5 border-t border-gray-100 dark:border-[#332C57] flex flex-col sm:flex-row items-center justify-between gap-2.5 shrink-0">
-                <div className="flex items-center gap-1.5 w-full sm:w-auto">
-                  <button
-                    onClick={handleExtract}
-                    disabled={loading}
-                    className="flex-1 sm:flex-none px-3 py-1 rounded-3xl border border-gray-200 dark:border-[#3D3868] text-[11px] font-semibold text-gray-700 dark:text-[#E9E7F5] hover:bg-gray-100 dark:hover:bg-[#251F47] transition whitespace-nowrap"
-                  >
-                    <HiOutlineRefresh
-                      size={13}
-                      className={`inline mr-1 ${loading ? "animate-spin" : ""}`}
-                    />
-                    Re-generate
-                  </button>
+  <div className="pt-2.5 border-t border-gray-100 dark:border-[#332C57] flex flex-col sm:flex-row items-center justify-between gap-2.5 shrink-0">
+    <div className="flex items-center gap-1.5 w-full sm:w-auto">
+      <button
+        onClick={handleExtract}
+        disabled={loading}
+        className="flex-1 sm:flex-none px-3 py-1 rounded-3xl border border-gray-200 dark:border-[#3D3868] text-[11px] font-semibold text-gray-700 dark:text-[#E9E7F5] hover:bg-gray-100 dark:hover:bg-[#251F47] transition whitespace-nowrap"
+      >
+        <HiOutlineRefresh
+          size={13}
+          className={`inline mr-1 ${loading ? "animate-spin" : ""}`}
+        />
+        Re-generate
+      </button>
 
-                  <button
-                    onClick={handleApproveAndSave}
-                    disabled={saving || result.isSaved}
-                    className={`flex-1 sm:flex-none px-3.5 py-1 rounded-3xl text-[11px] font-semibold transition whitespace-nowrap shadow-xs flex items-center justify-center gap-1 ${
-                      result.isSaved
-                        ? "border border-[#EC4899]/40 text-[#EC4899] bg-transparent cursor-not-allowed"
-                        : "bg-gradient-to-r from-[#8B5CF6] to-[#EC4899] hover:from-[#7C3AED] hover:to-[#DB2777] text-white"
-                    }`}
-                  >
-                    <HiOutlineShieldCheck size={14} />
-                    {saving
-                      ? "Saving..."
-                      : result.isSaved
-                        ? "Saved"
-                        : "Approve & Save"}
-                  </button>
-                </div>
+      <button
+        onClick={handleApproveAndSave}
+        disabled={saving || result.isSaved}
+        className={`flex-1 sm:flex-none px-3.5 py-1 rounded-3xl text-[11px] font-semibold transition whitespace-nowrap shadow-xs flex items-center justify-center gap-1 ${
+          result.isSaved
+            ? "border border-[#EC4899]/40 text-[#EC4899] bg-transparent cursor-not-allowed"
+            : "bg-gradient-to-r from-[#8B5CF6] to-[#EC4899] hover:from-[#7C3AED] hover:to-[#DB2777] text-white"
+        }`}
+      >
+        <HiOutlineShieldCheck size={14} />
+        {saving
+          ? "Saving..."
+          : result.isSaved
+            ? "Saved"
+            : "Approve & Save"}
+      </button>
+    </div>
 
-                <div className="flex items-center gap-1 w-full sm:w-auto overflow-x-auto">
-                  <span className="text-[10px] font-bold text-gray-400 dark:text-[#A5A1C4]/60 uppercase tracking-wider mr-1">
-                    Export:
-                  </span>
-                  {EXPORT_FORMATS.map((fmt) => (
-                    <button
-                      key={fmt.key}
-                      onClick={() => handleExport(fmt.key)}
-                      disabled={exporting === fmt.key}
-                      className={`px-2 py-0.5 rounded-md text-[10px] font-bold text-white transition uppercase ${fmt.className}`}
-                    >
-                      {fmt.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
+    {/* Export buttons appear only after approving & saving */}
+    {result.isSaved && (
+      <div className="flex items-center gap-1 w-full sm:w-auto overflow-x-auto animate-in fade-in duration-200">
+        <span className="text-[10px] font-bold text-gray-400 dark:text-[#A5A1C4]/60 uppercase tracking-wider mr-1">
+          Export:
+        </span>
+        {EXPORT_FORMATS.map((fmt) => (
+          <button
+            key={fmt.key}
+            onClick={() => handleExport(fmt.key)}
+            disabled={exporting === fmt.key}
+            className={`px-2 py-0.5 rounded-md text-[10px] font-bold text-white transition uppercase ${fmt.className}`}
+          >
+            {fmt.label}
+          </button>
+        ))}
+      </div>
+    )}
+  </div>
+)}
           </div>
         </div>
       )}

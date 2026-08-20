@@ -25,6 +25,70 @@ import {
 import { useToast } from "../context/ToastContext";
 import ConfirmModal from "../components/ConfirmModal";
 
+// Dashboard-matching Recursive Value Formatter
+const renderValue = (val) => {
+  if (val === null || val === undefined || val === "") {
+    return <span className="text-gray-400 dark:text-[#A5A1C4]/60 italic text-xs">N/A</span>;
+  }
+
+  if (
+    typeof val === "string" &&
+    val.trim().startsWith("{") &&
+    val.trim().endsWith("}")
+  ) {
+    try {
+      return renderValue(JSON.parse(val));
+    } catch (e) {}
+  }
+
+  if (Array.isArray(val)) {
+    if (val.length === 0)
+      return (
+        <span className="text-gray-400 dark:text-[#A5A1C4]/60 italic text-xs">
+          Empty list
+        </span>
+      );
+    return (
+      <ul className="space-y-1.5 my-1 pl-2.5 border-l-2 border-purple-300 dark:border-[#332C57]">
+        {val.map((item, idx) => (
+          <li
+            key={idx}
+            className="text-xs text-gray-700 dark:text-[#D6D3E8] leading-relaxed"
+          >
+            {typeof item === "object" ? renderValue(item) : String(item)}
+          </li>
+        ))}
+      </ul>
+    );
+  }
+
+  if (typeof val === "object") {
+    return (
+      <div className="pl-2.5 border-l-2 border-purple-300 dark:border-[#332C57] space-y-1.5 my-1">
+        {Object.entries(val).map(([k, v]) => (
+          <div
+            key={k}
+            className="text-xs flex flex-col sm:flex-row sm:items-start gap-1"
+          >
+            <span className="font-semibold text-gray-600 dark:text-[#A5A1C4] capitalize shrink-0 min-w-[80px]">
+              {k.replace(/_/g, " ")}:
+            </span>
+            <div className="flex-1 text-gray-800 dark:text-[#E9E7F5]">
+              {renderValue(v)}
+            </div>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  return (
+    <span className="text-gray-800 dark:text-white font-medium text-xs break-words">
+      {String(val)}
+    </span>
+  );
+};
+
 export default function ChatSession() {
   const { sessionId } = useParams();
   const navigate = useNavigate();
@@ -308,6 +372,7 @@ export default function ChatSession() {
         </div>
 
         <div className="flex-1 flex flex-col lg:flex-row gap-3 overflow-hidden">
+          {/* Left Chat Window */}
           <div className="flex-1 flex flex-col bg-white dark:bg-[#1A1635] rounded-xl border border-[#E2E8F0] dark:border-[#332C57] shadow-xl overflow-hidden h-full transition-colors duration-200">
             <div className="flex items-center gap-1.5 px-3 py-2 border-b border-[#E2E8F0] dark:border-[#332C57] overflow-x-auto shrink-0 bg-white dark:bg-[#1A1635] transition-colors duration-200">
               {documents.map((doc) => (
@@ -412,7 +477,8 @@ export default function ChatSession() {
             </div>
           </div>
 
-          <div className="w-full lg:w-[340px] bg-white dark:bg-[#1A1635] rounded-xl border border-[#E2E8F0] dark:border-[#332C57] p-3 flex flex-col shadow-xl overflow-hidden shrink-0 h-full transition-colors duration-200">
+          {/* Right Extraction Panel - Dashboard-styled */}
+          <div className="w-full lg:w-[360px] bg-white dark:bg-[#1A1635] rounded-xl border border-[#E2E8F0] dark:border-[#332C57] p-3.5 flex flex-col shadow-xl overflow-hidden shrink-0 h-full transition-colors duration-200">
             <div className="flex items-center justify-between pb-2 border-b border-[#E2E8F0] dark:border-[#332C57] shrink-0">
               <h3 className="text-xs font-bold text-gray-900 dark:text-white tracking-wide">
                 Extraction Result
@@ -464,27 +530,21 @@ export default function ChatSession() {
             ) : (
               <>
                 <div className="flex-1 overflow-y-auto my-2 space-y-2 pr-1 min-h-0">
-                  {Object.entries(extraction).map(([key, value]) => (
-                    <div
-                      key={key}
-                      className="p-2 bg-gray-50 dark:bg-[#251F47] rounded-xl border border-gray-200 dark:border-[#332C57] shadow-sm"
-                    >
-                      <span className="text-[10px] font-bold text-gray-500 dark:text-[#A5A1C4]/70 uppercase tracking-wider block mb-0.5">
-                        {key.replace(/_/g, " ")}
-                      </span>
-                      {value && typeof value === "object" ? (
-                        <pre className="p-1.5 rounded-lg bg-white dark:bg-[#120F24] border border-gray-200 dark:border-[#332C57] text-[10px] font-mono text-gray-800 dark:text-[#E9E7F5] overflow-x-auto whitespace-pre-wrap break-words">
-                          {JSON.stringify(value, null, 2)}
-                        </pre>
-                      ) : (
-                        <p className="text-xs font-semibold text-gray-900 dark:text-white break-words">
-                          {value === null || value === undefined || value === ""
-                            ? "—"
-                            : String(value)}
-                        </p>
-                      )}
-                    </div>
-                  ))}
+                  {Object.entries(
+                    extraction?.parsedFields || extraction?.data || extraction
+                  )
+                    .filter(([key]) => !["documentId", "fileName", "chatSessionId", "confidence", "isSaved", "id"].includes(key))
+                    .map(([key, value]) => (
+                      <div
+                        key={key}
+                        className="p-2.5 bg-[#8B5CF6]/5 dark:bg-[#171331] rounded-xl border border-gray-200 dark:border-[#332C57]/80 shadow-xs"
+                      >
+                        <span className="text-[10px] font-bold text-gray-800 dark:text-[#D6D3E8] uppercase tracking-wider block mb-1">
+                          {key.replace(/_/g, " ")}
+                        </span>
+                        <div>{renderValue(value)}</div>
+                      </div>
+                    ))}
                 </div>
 
                 <div className="pt-2.5 border-t border-[#E2E8F0] dark:border-[#332C57] flex items-center gap-1 shrink-0">
